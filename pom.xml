@@ -25,6 +25,10 @@
 
     <modules>
         <module>shared</module>
+        <module>parties</module>
+        <module>addresses</module>
+        <module>capabilities</module>
+        <module>relationships</module>
     </modules>
 
 </project>
