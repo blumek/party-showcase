@@ -23,4 +23,8 @@
         <java.version>25</java.version>
     </properties>
 
+    <modules>
+        <module>shared</module>
+    </modules>
+
 </project>
