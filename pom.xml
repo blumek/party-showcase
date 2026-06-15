@@ -29,6 +29,7 @@
         <module>addresses</module>
         <module>capabilities</module>
         <module>relationships</module>
+        <module>bootstrap</module>
     </modules>
 
 </project>
