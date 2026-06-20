@@ -7,7 +7,7 @@ import dev.blumek.party.shared.AggregateRoot;
 import dev.blumek.party.shared.Guards;
 import dev.blumek.party.shared.Result;
 
-public abstract sealed class Party extends AggregateRoot<PartyId> permits Person {
+public abstract sealed class Party extends AggregateRoot<PartyId> permits Person, Organization {
 
     private final PartyId id;
     private final Set<Role> roles = new HashSet<>();
