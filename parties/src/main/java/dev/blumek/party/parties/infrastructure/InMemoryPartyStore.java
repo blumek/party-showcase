@@ -1,5 +1,6 @@
 package dev.blumek.party.parties.infrastructure;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,5 +25,10 @@ public class InMemoryPartyStore implements PartyStore {
     @Override
     public Optional<Party> findById(final PartyId id) {
         return Optional.ofNullable(parties.get(id));
+    }
+
+    @Override
+    public List<Party> findAll() {
+        return List.copyOf(parties.values());
     }
 }
