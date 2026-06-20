@@ -21,4 +21,9 @@ public abstract sealed class Organization extends Party permits Company, Organiz
         this.name = newName;
         raise(new OrganizationRenamed(id(), newName));
     }
+
+    @Override
+    protected boolean accepts(final IdentifierKind kind) {
+        return kind == IdentifierKind.TAX;
+    }
 }

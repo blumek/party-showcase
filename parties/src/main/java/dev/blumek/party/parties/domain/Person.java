@@ -27,4 +27,9 @@ public final class Person extends Party {
         this.profile = updated;
         raise(new PersonProfileUpdated(id(), updated));
     }
+
+    @Override
+    protected boolean accepts(final IdentifierKind kind) {
+        return kind == IdentifierKind.NATIONAL || kind == IdentifierKind.PASSPORT;
+    }
 }

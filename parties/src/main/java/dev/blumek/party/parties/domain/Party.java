@@ -31,6 +31,8 @@ public abstract sealed class Party extends AggregateRoot<PartyId> permits Person
         return Set.copyOf(identifiers);
     }
 
+    protected abstract boolean accepts(IdentifierKind kind);
+
     public Result<PartyError, Party> assignRole(final Role role) {
         Guards.require(role != null, "Role cannot be null");
         if (roles.contains(role)) {
@@ -53,6 +55,9 @@ public abstract sealed class Party extends AggregateRoot<PartyId> permits Person
 
     public Result<PartyError, Party> registerIdentifier(final OfficialIdentifier identifier) {
         Guards.require(identifier != null, "Identifier cannot be null");
+        if (!accepts(identifier.kind())) {
+            return Result.failure(new PartyError.IdentifierNotEligible(identifier.kind()));
+        }
         if (identifiers.contains(identifier)) {
             return Result.failure(new PartyError.IdentifierAlreadyHeld(identifier));
         }

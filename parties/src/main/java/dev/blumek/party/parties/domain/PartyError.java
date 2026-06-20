@@ -13,4 +13,7 @@ public sealed interface PartyError {
 
     record IdentifierNotHeld(OfficialIdentifier identifier) implements PartyError {
     }
+
+    record IdentifierNotEligible(IdentifierKind kind) implements PartyError {
+    }
 }
