@@ -1,0 +1,28 @@
+package dev.blumek.party.parties.infrastructure;
+
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.springframework.stereotype.Repository;
+
+import dev.blumek.party.parties.application.PartyStore;
+import dev.blumek.party.parties.domain.Party;
+import dev.blumek.party.parties.domain.PartyId;
+
+@Repository
+public class InMemoryPartyStore implements PartyStore {
+
+    private final Map<PartyId, Party> parties = new ConcurrentHashMap<>();
+
+    @Override
+    public Party save(final Party party) {
+        parties.put(party.id(), party);
+        return party;
+    }
+
+    @Override
+    public Optional<Party> findById(final PartyId id) {
+        return Optional.ofNullable(parties.get(id));
+    }
+}
