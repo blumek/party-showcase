@@ -1,0 +1,20 @@
+package dev.blumek.party.addresses.application;
+
+import java.util.Set;
+
+import dev.blumek.party.addresses.domain.AddressId;
+import dev.blumek.party.addresses.domain.AddressPurpose;
+import dev.blumek.party.addresses.domain.ValidityPeriod;
+import dev.blumek.party.shared.OwnerId;
+
+public record RecordPostalAddress(
+        OwnerId owner,
+        AddressId addressId,
+        Set<AddressPurpose> purposes,
+        ValidityPeriod validity,
+        String line1,
+        String line2,
+        String city,
+        String postalCode,
+        String country) {
+}
