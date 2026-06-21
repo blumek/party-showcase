@@ -20,7 +20,7 @@ import static org.mockito.Mockito.when;
 
 class PartyQueryServiceTest {
 
-    private final PartyStore store = mock(PartyStore.class);
+    private final PartyRepository store = mock(PartyRepository.class);
     private final PartyQueryService service = new PartyQueryService(store);
 
     @Test

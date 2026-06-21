@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
 
 class PartyServiceTest {
 
-    private final PartyStore store = mock(PartyStore.class);
+    private final PartyRepository store = mock(PartyRepository.class);
     private final DomainEventPublisher publisher = mock(DomainEventPublisher.class);
     private final PartyService service = new PartyService(store, publisher);
 

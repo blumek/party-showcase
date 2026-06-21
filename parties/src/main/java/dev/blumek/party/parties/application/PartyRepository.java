@@ -6,7 +6,7 @@ import java.util.Optional;
 import dev.blumek.party.parties.domain.Party;
 import dev.blumek.party.parties.domain.PartyId;
 
-public interface PartyStore {
+public interface PartyRepository {
 
     Party save(Party party);
 

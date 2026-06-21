@@ -7,12 +7,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Repository;
 
-import dev.blumek.party.parties.application.PartyStore;
+import dev.blumek.party.parties.application.PartyRepository;
 import dev.blumek.party.parties.domain.Party;
 import dev.blumek.party.parties.domain.PartyId;
 
 @Repository
-public class InMemoryPartyStore implements PartyStore {
+public class InMemoryPartyRepository implements PartyRepository {
 
     private final Map<PartyId, Party> parties = new ConcurrentHashMap<>();
 

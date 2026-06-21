@@ -17,11 +17,11 @@ import dev.blumek.party.shared.Result;
 @Service
 public class PartyService {
 
-    private final PartyStore store;
+    private final PartyRepository repository;
     private final DomainEventPublisher publisher;
 
-    public PartyService(final PartyStore store, final DomainEventPublisher publisher) {
-        this.store = store;
+    public PartyService(final PartyRepository repository, final DomainEventPublisher publisher) {
+        this.repository = repository;
         this.publisher = publisher;
     }
 
@@ -75,7 +75,7 @@ public class PartyService {
 
     private Result<PartyError, PartyId> apply(final PartyId id,
             final Function<Party, Result<PartyError, Party>> action) {
-        return store.findById(id)
+        return repository.findById(id)
                 .map(party -> action.apply(party).onSuccess(this::persist).map(Party::id))
                 .orElseGet(() -> Result.failure(new PartyError.PartyNotFound(id)));
     }
@@ -86,7 +86,7 @@ public class PartyService {
     }
 
     private void persist(final Party party) {
-        store.save(party);
+        repository.save(party);
         publisher.publishAll(party.domainEvents());
         party.clearDomainEvents();
     }

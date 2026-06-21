@@ -17,18 +17,18 @@ import dev.blumek.party.parties.domain.Person;
 @Service
 public class PartyQueryService {
 
-    private final PartyStore store;
+    private final PartyRepository repository;
 
-    public PartyQueryService(final PartyStore store) {
-        this.store = store;
+    public PartyQueryService(final PartyRepository repository) {
+        this.repository = repository;
     }
 
     public Optional<PartySummary> findById(final PartyId id) {
-        return store.findById(id).map(this::summarise);
+        return repository.findById(id).map(this::summarise);
     }
 
     public List<PartySummary> findAll() {
-        return store.findAll().stream().map(this::summarise).toList();
+        return repository.findAll().stream().map(this::summarise).toList();
     }
 
     private PartySummary summarise(final Party party) {
