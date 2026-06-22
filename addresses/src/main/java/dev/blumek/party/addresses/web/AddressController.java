@@ -40,36 +40,32 @@ public class AddressController {
     }
 
     @PostMapping("/email")
-    public ResponseEntity<AddressSummary> recordEmail(@PathVariable final String partyId,
+    public ResponseEntity<AddressSummary> recordEmail(@PathVariable("partyId") final OwnerId owner,
             @RequestBody final RecordEmailRequest request) {
-        final var owner = OwnerId.of(partyId);
         final var command = new RecordEmailAddress(owner, addressId(request.addressId()), request.purposes(),
                 validity(request.validFrom(), request.validTo()), request.email());
         return respond(owner, addressService.recordEmail(command));
     }
 
     @PostMapping("/phone")
-    public ResponseEntity<AddressSummary> recordPhone(@PathVariable final String partyId,
+    public ResponseEntity<AddressSummary> recordPhone(@PathVariable("partyId") final OwnerId owner,
             @RequestBody final RecordPhoneRequest request) {
-        final var owner = OwnerId.of(partyId);
         final var command = new RecordPhoneNumber(owner, addressId(request.addressId()), request.purposes(),
                 validity(request.validFrom(), request.validTo()), request.phone());
         return respond(owner, addressService.recordPhone(command));
     }
 
     @PostMapping("/web")
-    public ResponseEntity<AddressSummary> recordWeb(@PathVariable final String partyId,
+    public ResponseEntity<AddressSummary> recordWeb(@PathVariable("partyId") final OwnerId owner,
             @RequestBody final RecordWebRequest request) {
-        final var owner = OwnerId.of(partyId);
         final var command = new RecordWebsiteUrl(owner, addressId(request.addressId()), request.purposes(),
                 validity(request.validFrom(), request.validTo()), request.url());
         return respond(owner, addressService.recordWebsite(command));
     }
 
     @PostMapping("/postal")
-    public ResponseEntity<AddressSummary> recordPostal(@PathVariable final String partyId,
+    public ResponseEntity<AddressSummary> recordPostal(@PathVariable("partyId") final OwnerId owner,
             @RequestBody final RecordPostalRequest request) {
-        final var owner = OwnerId.of(partyId);
         final var command = new RecordPostalAddress(owner, addressId(request.addressId()), request.purposes(),
                 validity(request.validFrom(), request.validTo()), request.line1(), request.line2(), request.city(),
                 request.postalCode(), request.country());
@@ -77,21 +73,22 @@ public class AddressController {
     }
 
     @GetMapping
-    public List<AddressSummary> findAll(@PathVariable final String partyId) {
-        return queryService.findByOwner(OwnerId.of(partyId));
+    public List<AddressSummary> findAll(@PathVariable("partyId") final OwnerId owner) {
+        return queryService.findByOwner(owner);
     }
 
     @GetMapping("/{addressId}")
-    public ResponseEntity<AddressSummary> findById(@PathVariable final String partyId,
-            @PathVariable final String addressId) {
-        return queryService.findById(OwnerId.of(partyId), AddressId.of(addressId))
+    public ResponseEntity<AddressSummary> findById(@PathVariable("partyId") final OwnerId owner,
+            @PathVariable final AddressId addressId) {
+        return queryService.findById(owner, addressId)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{addressId}")
-    public ResponseEntity<Void> remove(@PathVariable final String partyId, @PathVariable final String addressId) {
-        final var command = new RemoveAddress(OwnerId.of(partyId), AddressId.of(addressId));
+    public ResponseEntity<Void> remove(@PathVariable("partyId") final OwnerId owner,
+            @PathVariable final AddressId addressId) {
+        final var command = new RemoveAddress(owner, addressId);
         return addressService.remove(command)
                 .fold(error -> ResponseEntity.status(statusFor(error)).build(), id -> ResponseEntity.noContent().build());
     }

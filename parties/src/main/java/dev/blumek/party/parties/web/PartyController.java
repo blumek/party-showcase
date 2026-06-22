@@ -61,8 +61,8 @@ public class PartyController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PartySummary> findById(@PathVariable final String id) {
-        return queryService.findById(PartyId.of(id))
+    public ResponseEntity<PartySummary> findById(@PathVariable final PartyId id) {
+        return queryService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -73,15 +73,15 @@ public class PartyController {
     }
 
     @PostMapping("/{id}/roles")
-    public ResponseEntity<PartySummary> assignRole(@PathVariable final String id,
+    public ResponseEntity<PartySummary> assignRole(@PathVariable final PartyId id,
             @RequestBody final AssignRoleRequest request) {
-        return respond(partyService.assignRole(new AssignRole(PartyId.of(id), Role.named(request.name()))), HttpStatus.OK);
+        return respond(partyService.assignRole(new AssignRole(id, Role.named(request.name()))), HttpStatus.OK);
     }
 
     @PostMapping("/{id}/identifiers")
-    public ResponseEntity<PartySummary> registerIdentifier(@PathVariable final String id,
+    public ResponseEntity<PartySummary> registerIdentifier(@PathVariable final PartyId id,
             @RequestBody final RegisterIdentifierRequest request) {
-        final var command = new RegisterIdentifier(PartyId.of(id), toIdentifier(request));
+        final var command = new RegisterIdentifier(id, toIdentifier(request));
         return respond(partyService.registerIdentifier(command), HttpStatus.OK);
     }
 
