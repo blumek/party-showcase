@@ -12,7 +12,7 @@ import dev.blumek.party.parties.domain.Party;
 import dev.blumek.party.parties.domain.PartyId;
 
 @Repository
-public class InMemoryPartyRepository implements PartyRepository {
+class InMemoryPartyRepository implements PartyRepository {
 
     private final Map<PartyId, Party> parties = new ConcurrentHashMap<>();
 

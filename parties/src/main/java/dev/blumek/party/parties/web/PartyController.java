@@ -34,12 +34,12 @@ import dev.blumek.party.shared.Result;
 
 @RestController
 @RequestMapping("/parties")
-public class PartyController {
+class PartyController {
 
     private final PartyService partyService;
     private final PartyQueryService queryService;
 
-    public PartyController(final PartyService partyService, final PartyQueryService queryService) {
+    PartyController(final PartyService partyService, final PartyQueryService queryService) {
         this.partyService = partyService;
         this.queryService = queryService;
     }

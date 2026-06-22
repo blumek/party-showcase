@@ -11,7 +11,7 @@ import dev.blumek.party.addresses.domain.AddressBook;
 import dev.blumek.party.shared.OwnerId;
 
 @Repository
-public class InMemoryAddressRepository implements AddressRepository {
+class InMemoryAddressRepository implements AddressRepository {
 
     private final Map<OwnerId, AddressBook> books = new ConcurrentHashMap<>();
 

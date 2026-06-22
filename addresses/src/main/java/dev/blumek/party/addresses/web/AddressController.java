@@ -29,12 +29,12 @@ import dev.blumek.party.shared.Result;
 
 @RestController
 @RequestMapping("/parties/{partyId}/addresses")
-public class AddressController {
+class AddressController {
 
     private final AddressService addressService;
     private final AddressQueryService queryService;
 
-    public AddressController(final AddressService addressService, final AddressQueryService queryService) {
+    AddressController(final AddressService addressService, final AddressQueryService queryService) {
         this.addressService = addressService;
         this.queryService = queryService;
     }
