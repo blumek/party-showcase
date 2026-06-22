@@ -1,7 +1,6 @@
 package dev.blumek.party.parties.web;
 
 import java.util.List;
-import java.util.Locale;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +30,8 @@ import dev.blumek.party.parties.domain.PersonProfile;
 import dev.blumek.party.parties.domain.Role;
 import dev.blumek.party.parties.domain.TaxIdentificationNumber;
 import dev.blumek.party.shared.Result;
+
+import static java.util.Locale.ROOT;
 
 @RestController
 @RequestMapping("/parties")
@@ -109,7 +110,7 @@ class PartyController {
     }
 
     private static OfficialIdentifier toIdentifier(final RegisterIdentifierRequest request) {
-        return switch (request.kind().toUpperCase(Locale.ROOT)) {
+        return switch (request.kind().toUpperCase(ROOT)) {
             case "TAX" -> new TaxIdentificationNumber(request.value());
             case "PASSPORT" -> new PassportNumber(request.value());
             case "NATIONAL" -> new NationalIdentificationNumber(request.value());

@@ -1,9 +1,8 @@
 package dev.blumek.party.addresses.domain;
 
-import java.util.Locale;
-
 import static dev.blumek.party.shared.Guards.require;
 import static dev.blumek.party.shared.Guards.requireText;
+import static java.util.Locale.ROOT;
 
 public record PostalAddress(String line1, String line2, String city, PostalCode postalCode, String country)
         implements ContactPoint {
@@ -17,7 +16,7 @@ public record PostalAddress(String line1, String line2, String city, PostalCode 
     }
 
     private static String countryCode(final String raw) {
-        final var code = requireText(raw, "Postal address requires a country").strip().toUpperCase(Locale.ROOT);
+        final var code = requireText(raw, "Postal address requires a country").strip().toUpperCase(ROOT);
         require(code.matches("[A-Z]{2}"), "Country must be an ISO-3166 alpha-2 code: " + raw);
         return code;
     }
