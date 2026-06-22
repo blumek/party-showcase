@@ -1,10 +1,10 @@
 package dev.blumek.party.parties.domain;
 
-import dev.blumek.party.shared.Guards;
+import static dev.blumek.party.shared.Guards.requireText;
 
 public record LegalName(String value) {
 
     public LegalName {
-        value = Guards.requireText(value, "Legal name cannot be blank").strip();
+        value = requireText(value, "Legal name cannot be blank").strip();
     }
 }

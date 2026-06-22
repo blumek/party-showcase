@@ -1,6 +1,6 @@
 package dev.blumek.party.parties.domain;
 
-import dev.blumek.party.shared.Guards;
+import static dev.blumek.party.shared.Guards.require;
 
 public final class Person extends Party {
 
@@ -12,7 +12,7 @@ public final class Person extends Party {
     }
 
     public static Person register(final PersonProfile profile) {
-        Guards.require(profile != null, "Person requires a profile");
+        require(profile != null, "Person requires a profile");
         final var person = new Person(PartyId.random(), profile);
         person.raise(new PartyRegistered(person.id()));
         return person;
@@ -23,7 +23,7 @@ public final class Person extends Party {
     }
 
     public void updateProfile(final PersonProfile updated) {
-        Guards.require(updated != null, "Updated profile cannot be null");
+        require(updated != null, "Updated profile cannot be null");
         this.profile = updated;
         raise(new PersonProfileUpdated(id(), updated));
     }

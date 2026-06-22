@@ -3,7 +3,8 @@ package dev.blumek.party.addresses.domain;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
-import dev.blumek.party.shared.Guards;
+import static dev.blumek.party.shared.Guards.require;
+import static dev.blumek.party.shared.Guards.requireText;
 
 public record EmailAddress(String value) implements ContactPoint {
 
@@ -14,10 +15,10 @@ public record EmailAddress(String value) implements ContactPoint {
     }
 
     private static String canonical(final String raw) {
-        final var normalized = Guards.requireText(raw, "Email address cannot be blank")
+        final var normalized = requireText(raw, "Email address cannot be blank")
                 .strip()
                 .toLowerCase(Locale.ROOT);
-        Guards.require(FORMAT.matcher(normalized).matches(), "Email address is not well-formed: " + normalized);
+        require(FORMAT.matcher(normalized).matches(), "Email address is not well-formed: " + normalized);
         return normalized;
     }
 

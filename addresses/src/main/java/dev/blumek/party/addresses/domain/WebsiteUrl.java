@@ -3,7 +3,8 @@ package dev.blumek.party.addresses.domain;
 import java.net.URI;
 import java.util.Locale;
 
-import dev.blumek.party.shared.Guards;
+import static dev.blumek.party.shared.Guards.require;
+import static dev.blumek.party.shared.Guards.requireText;
 
 public record WebsiteUrl(String value) implements ContactPoint {
 
@@ -12,11 +13,11 @@ public record WebsiteUrl(String value) implements ContactPoint {
     }
 
     private static String canonical(final String raw) {
-        final var text = Guards.requireText(raw, "Website URL cannot be blank").strip();
+        final var text = requireText(raw, "Website URL cannot be blank").strip();
         final var uri = parse(text);
         final var scheme = uri.getScheme() == null ? "" : uri.getScheme().toLowerCase(Locale.ROOT);
-        Guards.require(scheme.equals("http") || scheme.equals("https"), "Website URL must use http or https: " + text);
-        Guards.require(uri.getHost() != null, "Website URL must have a host: " + text);
+        require(scheme.equals("http") || scheme.equals("https"), "Website URL must use http or https: " + text);
+        require(uri.getHost() != null, "Website URL must have a host: " + text);
         return uri.toString();
     }
 

@@ -1,6 +1,7 @@
 package dev.blumek.party.parties.domain;
 
-import dev.blumek.party.shared.Guards;
+import static dev.blumek.party.shared.Guards.require;
+import static dev.blumek.party.shared.Guards.requireText;
 
 public record NationalIdentificationNumber(String value) implements OfficialIdentifier {
 
@@ -9,9 +10,9 @@ public record NationalIdentificationNumber(String value) implements OfficialIden
     }
 
     private static String canonical(final String raw) {
-        final var digits = Guards.requireText(raw, "National identification number cannot be blank")
+        final var digits = requireText(raw, "National identification number cannot be blank")
                 .replaceAll("\\s", "");
-        Guards.require(digits.matches("\\d{11}"), "National identification number must be exactly 11 digits");
+        require(digits.matches("\\d{11}"), "National identification number must be exactly 11 digits");
         return digits;
     }
 

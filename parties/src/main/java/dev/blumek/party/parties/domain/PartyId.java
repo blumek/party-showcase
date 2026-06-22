@@ -2,12 +2,12 @@ package dev.blumek.party.parties.domain;
 
 import java.util.UUID;
 
-import dev.blumek.party.shared.Guards;
+import static dev.blumek.party.shared.Guards.require;
 
 public record PartyId(UUID value) {
 
     public PartyId {
-        Guards.require(value != null, "Party id value cannot be null");
+        require(value != null, "Party id value cannot be null");
     }
 
     public static PartyId of(final String value) {

@@ -1,11 +1,11 @@
 package dev.blumek.party.parties.domain;
 
-import dev.blumek.party.shared.Guards;
+import static dev.blumek.party.shared.Guards.requireText;
 
 public record PersonName(String given, String family) {
 
     public PersonName {
-        given = Guards.requireText(given, "Given name cannot be blank").strip();
-        family = Guards.requireText(family, "Family name cannot be blank").strip();
+        given = requireText(given, "Given name cannot be blank").strip();
+        family = requireText(family, "Family name cannot be blank").strip();
     }
 }

@@ -4,8 +4,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import dev.blumek.party.shared.AggregateRoot;
-import dev.blumek.party.shared.Guards;
 import dev.blumek.party.shared.Result;
+
+import static dev.blumek.party.shared.Guards.require;
 
 public abstract sealed class Party extends AggregateRoot<PartyId> permits Person, Organization {
 
@@ -14,7 +15,7 @@ public abstract sealed class Party extends AggregateRoot<PartyId> permits Person
     private final Set<OfficialIdentifier> identifiers = new HashSet<>();
 
     protected Party(final PartyId id) {
-        Guards.require(id != null, "Party requires an id");
+        require(id != null, "Party requires an id");
         this.id = id;
     }
 
@@ -34,7 +35,7 @@ public abstract sealed class Party extends AggregateRoot<PartyId> permits Person
     protected abstract boolean accepts(IdentifierKind kind);
 
     public Result<PartyError, Party> assignRole(final Role role) {
-        Guards.require(role != null, "Role cannot be null");
+        require(role != null, "Role cannot be null");
         if (roles.contains(role)) {
             return Result.failure(new PartyError.RoleAlreadyHeld(role));
         }
@@ -44,7 +45,7 @@ public abstract sealed class Party extends AggregateRoot<PartyId> permits Person
     }
 
     public Result<PartyError, Party> relinquishRole(final Role role) {
-        Guards.require(role != null, "Role cannot be null");
+        require(role != null, "Role cannot be null");
         if (!roles.contains(role)) {
             return Result.failure(new PartyError.RoleNotHeld(role));
         }
@@ -54,7 +55,7 @@ public abstract sealed class Party extends AggregateRoot<PartyId> permits Person
     }
 
     public Result<PartyError, Party> registerIdentifier(final OfficialIdentifier identifier) {
-        Guards.require(identifier != null, "Identifier cannot be null");
+        require(identifier != null, "Identifier cannot be null");
         if (!accepts(identifier.kind())) {
             return Result.failure(new PartyError.IdentifierNotEligible(identifier.kind()));
         }
@@ -67,7 +68,7 @@ public abstract sealed class Party extends AggregateRoot<PartyId> permits Person
     }
 
     public Result<PartyError, Party> withdrawIdentifier(final OfficialIdentifier identifier) {
-        Guards.require(identifier != null, "Identifier cannot be null");
+        require(identifier != null, "Identifier cannot be null");
         if (!identifiers.contains(identifier)) {
             return Result.failure(new PartyError.IdentifierNotHeld(identifier));
         }

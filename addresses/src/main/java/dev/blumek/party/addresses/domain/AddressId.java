@@ -2,12 +2,12 @@ package dev.blumek.party.addresses.domain;
 
 import java.util.UUID;
 
-import dev.blumek.party.shared.Guards;
+import static dev.blumek.party.shared.Guards.require;
 
 public record AddressId(UUID value) {
 
     public AddressId {
-        Guards.require(value != null, "Address id value cannot be null");
+        require(value != null, "Address id value cannot be null");
     }
 
     public static AddressId of(final String value) {

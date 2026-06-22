@@ -1,6 +1,6 @@
 package dev.blumek.party.parties.domain;
 
-import dev.blumek.party.shared.Guards;
+import static dev.blumek.party.shared.Guards.require;
 
 public abstract sealed class Organization extends Party permits Company, OrganizationUnit {
 
@@ -8,7 +8,7 @@ public abstract sealed class Organization extends Party permits Company, Organiz
 
     protected Organization(final PartyId id, final LegalName name) {
         super(id);
-        Guards.require(name != null, "Organization requires a name");
+        require(name != null, "Organization requires a name");
         this.name = name;
     }
 
@@ -17,7 +17,7 @@ public abstract sealed class Organization extends Party permits Company, Organiz
     }
 
     public void rename(final LegalName newName) {
-        Guards.require(newName != null, "Organization name cannot be null");
+        require(newName != null, "Organization name cannot be null");
         this.name = newName;
         raise(new OrganizationRenamed(id(), newName));
     }

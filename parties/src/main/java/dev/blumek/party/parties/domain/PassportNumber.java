@@ -2,7 +2,8 @@ package dev.blumek.party.parties.domain;
 
 import java.util.Locale;
 
-import dev.blumek.party.shared.Guards;
+import static dev.blumek.party.shared.Guards.require;
+import static dev.blumek.party.shared.Guards.requireText;
 
 public record PassportNumber(String value) implements OfficialIdentifier {
 
@@ -11,10 +12,10 @@ public record PassportNumber(String value) implements OfficialIdentifier {
     }
 
     private static String canonical(final String raw) {
-        final var upper = Guards.requireText(raw, "Passport number cannot be blank")
+        final var upper = requireText(raw, "Passport number cannot be blank")
                 .strip()
                 .toUpperCase(Locale.ROOT);
-        Guards.require(upper.matches("[A-Z]{2}\\d{7}"),
+        require(upper.matches("[A-Z]{2}\\d{7}"),
                 "Passport number must be two letters followed by seven digits");
         return upper;
     }

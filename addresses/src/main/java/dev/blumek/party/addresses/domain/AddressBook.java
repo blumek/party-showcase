@@ -7,10 +7,11 @@ import java.util.Map;
 import java.util.Optional;
 
 import dev.blumek.party.shared.AggregateRoot;
-import dev.blumek.party.shared.Guards;
 import dev.blumek.party.shared.OwnerId;
 import dev.blumek.party.shared.Result;
 import dev.blumek.party.shared.Version;
+
+import static dev.blumek.party.shared.Guards.require;
 
 public final class AddressBook extends AggregateRoot<OwnerId> {
 
@@ -20,8 +21,8 @@ public final class AddressBook extends AggregateRoot<OwnerId> {
     private Version version;
 
     private AddressBook(final OwnerId owner, final AddressPolicy policy) {
-        Guards.require(owner != null, "Address book requires an owner");
-        Guards.require(policy != null, "Address book requires a policy");
+        require(owner != null, "Address book requires an owner");
+        require(policy != null, "Address book requires a policy");
         this.owner = owner;
         this.policy = policy;
         this.version = Version.initial();
@@ -57,13 +58,13 @@ public final class AddressBook extends AggregateRoot<OwnerId> {
     }
 
     public Result<AddressError, AddressId> record(final Address address) {
-        Guards.require(address != null, "Address cannot be null");
+        require(address != null, "Address cannot be null");
         final var existing = addresses.get(address.id());
         return existing == null ? add(address) : revise(existing, address);
     }
 
     public Result<AddressError, AddressId> remove(final AddressId id) {
-        Guards.require(id != null, "Address id cannot be null");
+        require(id != null, "Address id cannot be null");
         final var removed = addresses.remove(id);
         if (removed == null) {
             return Result.failure(new AddressError.AddressNotFound(id));

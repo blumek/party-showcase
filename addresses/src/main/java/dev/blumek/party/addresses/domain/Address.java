@@ -2,15 +2,15 @@ package dev.blumek.party.addresses.domain;
 
 import java.util.Set;
 
-import dev.blumek.party.shared.Guards;
+import static dev.blumek.party.shared.Guards.require;
 
 public record Address(AddressId id, ContactPoint contact, Set<AddressPurpose> purposes, ValidityPeriod validity) {
 
     public Address {
-        Guards.require(id != null, "Address requires an id");
-        Guards.require(contact != null, "Address requires a contact point");
-        Guards.require(purposes != null && !purposes.isEmpty(), "Address requires at least one purpose");
-        Guards.require(validity != null, "Address requires a validity period");
+        require(id != null, "Address requires an id");
+        require(contact != null, "Address requires a contact point");
+        require(purposes != null && !purposes.isEmpty(), "Address requires at least one purpose");
+        require(validity != null, "Address requires a validity period");
         purposes = Set.copyOf(purposes);
     }
 
