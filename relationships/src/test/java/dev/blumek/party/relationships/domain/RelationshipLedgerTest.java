@@ -105,6 +105,18 @@ class RelationshipLedgerTest {
     }
 
     @Test
+    void establishingARelationshipWithDisallowedRolesReturnsRolesNotAllowed() {
+        var ledger = RelationshipLedger.openFor(owner);
+
+        var actualResult = ledger.establish(new Relationship(RelationshipId.random(),
+                Endpoint.of(owner, Role.of("Employee")),
+                Endpoint.of(OwnerId.random(), Role.of("Employer")),
+                employment, RelationshipPeriod.always()));
+
+        thenFailedWith(actualResult, RelationshipError.RolesNotAllowed.class);
+    }
+
+    @Test
     void terminatingAnUnknownRelationshipReturnsRelationshipNotFound() {
         var ledger = RelationshipLedger.openFor(owner);
 
