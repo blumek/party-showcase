@@ -35,6 +35,14 @@ public final class RelationshipLedger extends AggregateRoot<OwnerId> {
         return new RelationshipLedger(owner, policy);
     }
 
+    public static RelationshipLedger rehydrate(final OwnerId owner, final List<Relationship> relationships,
+                                               final Version version) {
+        final var ledger = new RelationshipLedger(owner, RelationshipPolicy.DEFAULT);
+        relationships.forEach(relationship -> ledger.relationships.put(relationship.id(), relationship));
+        ledger.version = version;
+        return ledger;
+    }
+
     @Override
     public OwnerId id() {
         return owner;
