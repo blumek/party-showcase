@@ -1,5 +1,7 @@
 package dev.blumek.party.parties.domain;
 
+import java.util.Set;
+
 import static dev.blumek.party.shared.Guards.require;
 
 public final class Person extends Party {
@@ -15,6 +17,13 @@ public final class Person extends Party {
         require(profile != null, "Person requires a profile");
         final var person = new Person(PartyId.random(), profile);
         person.raise(new PartyRegistered(person.id()));
+        return person;
+    }
+
+    public static Person rehydrate(final PartyId id, final PersonProfile profile,
+                                   final Set<Role> roles, final Set<OfficialIdentifier> identifiers) {
+        final var person = new Person(id, profile);
+        person.restore(roles, identifiers);
         return person;
     }
 

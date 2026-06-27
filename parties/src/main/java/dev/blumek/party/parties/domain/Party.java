@@ -34,6 +34,11 @@ public abstract sealed class Party extends AggregateRoot<PartyId> permits Person
 
     protected abstract boolean accepts(IdentifierKind kind);
 
+    protected void restore(final Set<Role> roles, final Set<OfficialIdentifier> identifiers) {
+        this.roles.addAll(roles);
+        this.identifiers.addAll(identifiers);
+    }
+
     public Result<PartyError, Party> assignRole(final Role role) {
         require(role != null, "Role cannot be null");
         if (roles.contains(role)) {
