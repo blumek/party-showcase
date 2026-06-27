@@ -25,3 +25,19 @@ Feature: Party registration and search
     When I search parties by type "COMPANY" and name "Acme Industries"
     Then the response status is 200
     And the search returns 1 party with display name "Acme Industries"
+
+  Scenario: Register an organization unit and read it back
+    When I register an organization unit named "Research Division"
+    Then the response status is 201
+    When I fetch that party
+    Then the response status is 200
+    And the party has kind "ORGANIZATION_UNIT" and display name "Research Division"
+
+  Scenario: Register an identifier and find the party by it
+    Given a registered person named "Alan" "Turing" born "1912-06-23"
+    When I register a "NATIONAL" identifier "19120623123" for that party
+    Then the response status is 200
+    And the party identifiers contain "19120623123"
+    When I search parties by identifier "19120623123"
+    Then the response status is 200
+    And the search returns 1 party with kind "PERSON"

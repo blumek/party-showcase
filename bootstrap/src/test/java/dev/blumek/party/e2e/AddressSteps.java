@@ -54,6 +54,12 @@ public class AddressSteps {
         context.record(given().get("/parties/{partyId}/addresses", context.recall(alias)));
     }
 
+    @When("I remove the recorded address for party {string}")
+    public void removeRecordedAddress(final String alias) {
+        context.record(given().delete("/parties/{partyId}/addresses/{addressId}",
+                context.recall(alias), context.recall(ADDRESS)));
+    }
+
     @Then("the address has kind {string} and value {string}")
     public void theAddressHas(final String kind, final String value) {
         final var body = context.response().jsonPath();

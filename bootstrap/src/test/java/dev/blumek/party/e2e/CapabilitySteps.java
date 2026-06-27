@@ -38,6 +38,17 @@ public class CapabilitySteps {
                 context.recall(alias), context.recall(CAPABILITY)));
     }
 
+    @When("I list the capabilities for party {string}")
+    public void listCapabilities(final String alias) {
+        context.record(given().get("/parties/{partyId}/capabilities", context.recall(alias)));
+    }
+
+    @When("I revoke the granted capability for party {string}")
+    public void revokeCapability(final String alias) {
+        context.record(given().delete("/parties/{partyId}/capabilities/{capabilityId}",
+                context.recall(alias), context.recall(CAPABILITY)));
+    }
+
     @Then("the capability has kind {string}")
     public void theCapabilityHasKind(final String kind) {
         assertThat(context.response().jsonPath().getString("kind")).isEqualTo(kind);
@@ -46,5 +57,10 @@ public class CapabilitySteps {
     @Then("the first capability scope has dimension {string}")
     public void theFirstScopeHasDimension(final String dimension) {
         assertThat(context.response().jsonPath().getString("scopes[0].dimension")).isEqualTo(dimension);
+    }
+
+    @Then("the capability list has size {int}")
+    public void theCapabilityListHasSize(final int size) {
+        assertThat(context.response().jsonPath().getList("id", String.class)).hasSize(size);
     }
 }

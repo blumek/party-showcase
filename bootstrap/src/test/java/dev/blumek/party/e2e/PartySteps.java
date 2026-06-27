@@ -3,6 +3,7 @@ package dev.blumek.party.e2e;
 import java.time.LocalDate;
 
 import dev.blumek.party.parties.web.AssignRoleRequest;
+import dev.blumek.party.parties.web.RegisterIdentifierRequest;
 import dev.blumek.party.parties.web.RegisterOrganizationRequest;
 import dev.blumek.party.parties.web.RegisterPersonRequest;
 import io.cucumber.java.en.Given;
@@ -62,6 +63,27 @@ public class PartySteps {
         context.record(response);
     }
 
+    @Given("a registered organization unit named {string}")
+    @When("I register an organization unit named {string}")
+    public void registerOrganizationUnit(final String name) {
+        final var response = given().contentType(ContentType.JSON)
+                .body(new RegisterOrganizationRequest(name))
+                .post("/parties/organization-units");
+        rememberParty(response, CURRENT);
+    }
+
+    @When("I register a {string} identifier {string} for that party")
+    public void registerIdentifier(final String kind, final String value) {
+        context.record(given().contentType(ContentType.JSON)
+                .body(new RegisterIdentifierRequest(kind, value))
+                .post("/parties/{id}/identifiers", context.recall(CURRENT)));
+    }
+
+    @When("I search parties by identifier {string}")
+    public void searchByIdentifier(final String identifier) {
+        context.record(given().queryParam("identifier", identifier).get("/parties"));
+    }
+
     @When("I fetch that party")
     public void fetchParty() {
         context.record(given().get("/parties/{id}", context.recall(CURRENT)));
@@ -87,6 +109,11 @@ public class PartySteps {
     @Then("the party roles contain {string}")
     public void thePartyRolesContain(final String role) {
         assertThat(context.response().jsonPath().getList("roles", String.class)).contains(role);
+    }
+
+    @Then("the party identifiers contain {string}")
+    public void thePartyIdentifiersContain(final String value) {
+        assertThat(context.response().jsonPath().getList("identifiers.value", String.class)).contains(value);
     }
 
     @Then("the search returns {int} party with kind {string}")

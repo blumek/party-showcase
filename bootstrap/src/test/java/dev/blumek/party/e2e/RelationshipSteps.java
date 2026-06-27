@@ -36,10 +36,26 @@ public class RelationshipSteps {
                 context.recall(fromAlias), context.recall(RELATIONSHIP)));
     }
 
+    @When("I list the relationships from {string}")
+    public void listRelationships(final String fromAlias) {
+        context.record(given().get("/parties/{partyId}/relationships", context.recall(fromAlias)));
+    }
+
+    @When("I end the established relationship from {string}")
+    public void endRelationship(final String fromAlias) {
+        context.record(given().delete("/parties/{partyId}/relationships/{relationshipId}",
+                context.recall(fromAlias), context.recall(RELATIONSHIP)));
+    }
+
     @Then("the relationship has type {string} and to-role {string}")
     public void theRelationshipHas(final String type, final String toRole) {
         final var body = context.response().jsonPath();
         assertThat(body.getString("type")).isEqualTo(type);
         assertThat(body.getString("toRole")).isEqualTo(toRole);
+    }
+
+    @Then("the relationship list has size {int}")
+    public void theRelationshipListHasSize(final int size) {
+        assertThat(context.response().jsonPath().getList("id", String.class)).hasSize(size);
     }
 }
