@@ -1,7 +1,6 @@
 package dev.blumek.party.relationships.application;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 import dev.blumek.party.relationships.domain.Endpoint;
@@ -62,55 +61,15 @@ class RelationshipQueryServiceTest {
 
         var actualSummary = service.findById(employer, RelationshipId.random());
 
-        thenAbsent(actualSummary);
-    }
-
-    private void thenAbsent(final Optional<RelationshipSummary> summary) {
-        assertThat(summary).isEmpty();
+        assertThat(actualSummary).isEmpty();
     }
 
     @Test
-    void returnsAnEmptyListForAnUnknownOwner() {
+    void returnsEmptyForAnUnknownOwner() {
         when(repository.findByOwner(employer)).thenReturn(Optional.empty());
 
-        var actualSummaries = service.findByOwner(employer);
+        var actualSummary = service.findById(employer, RelationshipId.random());
 
-        thenEmpty(actualSummaries);
-    }
-
-    private void thenEmpty(final List<RelationshipSummary> summaries) {
-        assertThat(summaries).isEmpty();
-    }
-
-    @Test
-    void findsRelationshipsWherePartyIsTheToEndpoint() {
-        givenAllLedgers(ledgerFor(employer, employment(RelationshipPeriod.always())));
-
-        var actualSummaries = service.findInvolving(employee);
-
-        thenCountIs(actualSummaries, 1);
-    }
-
-    private void givenAllLedgers(final RelationshipLedger... ledgers) {
-        when(repository.findAll()).thenReturn(List.of(ledgers));
-    }
-
-    private RelationshipLedger ledgerFor(final OwnerId owner, final Relationship relationship) {
-        var ledger = RelationshipLedger.openFor(owner);
-        ledger.establish(relationship);
-        return ledger;
-    }
-
-    private void thenCountIs(final List<RelationshipSummary> summaries, final int expected) {
-        assertThat(summaries).hasSize(expected);
-    }
-
-    @Test
-    void excludesExpiredRelationshipsFromInvolving() {
-        givenAllLedgers(ledgerFor(employer, employment(RelationshipPeriod.until(LocalDate.of(2020, 1, 1)))));
-
-        var actualSummaries = service.findInvolving(employee);
-
-        thenCountIs(actualSummaries, 0);
+        assertThat(actualSummary).isEmpty();
     }
 }

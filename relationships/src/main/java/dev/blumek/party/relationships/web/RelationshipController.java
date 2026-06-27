@@ -11,9 +11,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import dev.blumek.party.relationships.application.EstablishRelationship;
+import dev.blumek.party.relationships.application.RelationshipFinder;
+import dev.blumek.party.relationships.application.RelationshipQuery;
 import dev.blumek.party.relationships.application.RelationshipQueryService;
 import dev.blumek.party.relationships.application.RelationshipService;
 import dev.blumek.party.relationships.application.RelationshipSummary;
@@ -32,10 +35,13 @@ class RelationshipController {
 
     private final RelationshipService relationshipService;
     private final RelationshipQueryService queryService;
+    private final RelationshipFinder finder;
 
-    RelationshipController(final RelationshipService relationshipService, final RelationshipQueryService queryService) {
+    RelationshipController(final RelationshipService relationshipService, final RelationshipQueryService queryService,
+            final RelationshipFinder finder) {
         this.relationshipService = relationshipService;
         this.queryService = queryService;
+        this.finder = finder;
     }
 
     @PostMapping
@@ -48,8 +54,11 @@ class RelationshipController {
     }
 
     @GetMapping
-    public List<RelationshipSummary> findAll(@PathVariable("partyId") final OwnerId owner) {
-        return queryService.findByOwner(owner);
+    public List<RelationshipSummary> findAll(@PathVariable("partyId") final OwnerId owner,
+            @RequestParam(defaultValue = "OUTGOING") final RelationshipQuery.Direction direction,
+            @RequestParam(required = false) final String type,
+            @RequestParam(required = false) final String role) {
+        return finder.find(new RelationshipQuery(owner, direction, type, role));
     }
 
     @GetMapping("/{relationshipId}")

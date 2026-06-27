@@ -1,8 +1,11 @@
 package dev.blumek.party.relationships.web;
 
+import java.util.List;
 import java.util.Optional;
 
 import dev.blumek.party.relationships.application.EstablishRelationship;
+import dev.blumek.party.relationships.application.RelationshipFinder;
+import dev.blumek.party.relationships.application.RelationshipQuery;
 import dev.blumek.party.relationships.application.RelationshipQueryService;
 import dev.blumek.party.relationships.application.RelationshipService;
 import dev.blumek.party.relationships.application.RelationshipSummary;
@@ -43,6 +46,9 @@ class RelationshipControllerTest {
 
     @MockitoBean
     private RelationshipQueryService queryService;
+
+    @MockitoBean
+    private RelationshipFinder finder;
 
     private final OwnerId owner = OwnerId.random();
     private final OwnerId other = OwnerId.random();
@@ -93,6 +99,29 @@ class RelationshipControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body(establishRequest())))
                 .andExpect(status().isConflict());
+    }
+
+    @Test
+    void listingEmployeesAppliesDirectionTypeAndRoleFilters() throws Exception {
+        var query = new RelationshipQuery(owner, RelationshipQuery.Direction.OUTGOING, "Employment", "Employee");
+        when(finder.find(eq(query))).thenReturn(List.of(summary(relationshipId)));
+
+        mockMvc.perform(get("/parties/{partyId}/relationships", owner.asString())
+                        .param("direction", "OUTGOING")
+                        .param("type", "Employment")
+                        .param("role", "Employee"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].toRole").value("Employee"));
+    }
+
+    @Test
+    void listingDefaultsToOutgoingDirection() throws Exception {
+        var query = new RelationshipQuery(owner, RelationshipQuery.Direction.OUTGOING, null, null);
+        when(finder.find(eq(query))).thenReturn(List.of(summary(relationshipId)));
+
+        mockMvc.perform(get("/parties/{partyId}/relationships", owner.asString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(relationshipId.asString()));
     }
 
     @Test

@@ -1,6 +1,7 @@
 package dev.blumek.party.e2e;
 
 import dev.blumek.party.relationships.web.EstablishRelationshipRequest;
+import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.restassured.http.ContentType;
@@ -36,9 +37,21 @@ public class RelationshipSteps {
                 context.recall(fromAlias), context.recall(RELATIONSHIP)));
     }
 
+    @Given("an {string} relationship from {string} as {string} to {string} as {string}")
+    public void anEstablishedRelationship(final String type, final String fromAlias, final String fromRole,
+            final String toAlias, final String toRole) {
+        establish(type, fromAlias, fromRole, toAlias, toRole);
+    }
+
     @When("I list the relationships from {string}")
     public void listRelationships(final String fromAlias) {
         context.record(given().get("/parties/{partyId}/relationships", context.recall(fromAlias)));
+    }
+
+    @When("I list {string} {string} relationships from {string}")
+    public void listFiltered(final String direction, final String type, final String fromAlias) {
+        context.record(given().queryParam("direction", direction).queryParam("type", type)
+                .get("/parties/{partyId}/relationships", context.recall(fromAlias)));
     }
 
     @When("I end the established relationship from {string}")
