@@ -28,6 +28,14 @@ public final class CapabilityPortfolio extends AggregateRoot<OwnerId> {
         return new CapabilityPortfolio(owner);
     }
 
+    public static CapabilityPortfolio rehydrate(final OwnerId owner, final List<Capability> capabilities,
+                                                final Version version) {
+        final var portfolio = new CapabilityPortfolio(owner);
+        capabilities.forEach(capability -> portfolio.capabilities.put(capability.id(), capability));
+        portfolio.version = version;
+        return portfolio;
+    }
+
     @Override
     public OwnerId id() {
         return owner;
