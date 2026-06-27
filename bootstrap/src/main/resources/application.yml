@@ -1,6 +1,8 @@
 spring:
   application:
     name: party-showcase
+  profiles:
+    default: jdbc
 
 management:
   endpoints:
@@ -31,5 +33,5 @@ spring:
   flyway:
     enabled: true
     baseline-on-migrate: true
-    fail-on-missing-locations: false
+    fail-on-missing-locations: true
     locations: classpath:db/migration/party,classpath:db/migration/address,classpath:db/migration/capability,classpath:db/migration/relationship
