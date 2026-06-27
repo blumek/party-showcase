@@ -36,6 +36,13 @@ public final class AddressBook extends AggregateRoot<OwnerId> {
         return new AddressBook(owner, policy);
     }
 
+    public static AddressBook rehydrate(final OwnerId owner, final List<Address> addresses, final Version version) {
+        final var book = new AddressBook(owner, AddressPolicy.DEFAULT);
+        addresses.forEach(address -> book.addresses.put(address.id(), address));
+        book.version = version;
+        return book;
+    }
+
     @Override
     public OwnerId id() {
         return owner;
