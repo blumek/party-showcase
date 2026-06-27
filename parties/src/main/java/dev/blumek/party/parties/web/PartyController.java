@@ -9,10 +9,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import dev.blumek.party.parties.application.AssignRole;
 import dev.blumek.party.parties.application.PartyQueryService;
+import dev.blumek.party.parties.application.PartySearchCriteria;
 import dev.blumek.party.parties.application.PartyService;
 import dev.blumek.party.parties.application.PartySummary;
 import dev.blumek.party.parties.application.RegisterCompany;
@@ -69,8 +71,12 @@ class PartyController {
     }
 
     @GetMapping
-    public List<PartySummary> findAll() {
-        return queryService.findAll();
+    public List<PartySummary> search(
+            @RequestParam(required = false) final String type,
+            @RequestParam(required = false) final String role,
+            @RequestParam(required = false) final String identifier,
+            @RequestParam(required = false) final String name) {
+        return queryService.search(new PartySearchCriteria(type, role, identifier, name));
     }
 
     @PostMapping("/{id}/roles")

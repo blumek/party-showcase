@@ -7,7 +7,6 @@ import java.util.Optional;
 import dev.blumek.party.parties.domain.Company;
 import dev.blumek.party.parties.domain.LegalName;
 import dev.blumek.party.parties.domain.NationalIdentificationNumber;
-import dev.blumek.party.parties.domain.Party;
 import dev.blumek.party.parties.domain.Person;
 import dev.blumek.party.parties.domain.PersonName;
 import dev.blumek.party.parties.domain.PersonProfile;
@@ -21,7 +20,8 @@ import static org.mockito.Mockito.when;
 class PartyQueryServiceTest {
 
     private final PartyRepository store = mock(PartyRepository.class);
-    private final PartyQueryService service = new PartyQueryService(store);
+    private final PartyFinder finder = mock(PartyFinder.class);
+    private final PartyQueryService service = new PartyQueryService(store, finder);
 
     @Test
     void summarisesAPersonWithItsKindAndDisplayName() {
@@ -92,16 +92,17 @@ class PartyQueryServiceTest {
     }
 
     @Test
-    void listsEveryStoredPartyAsASummary() {
-        givenAllStored(givenStoredPerson(), givenStoredCompany());
+    void delegatesSearchToTheFinder() {
+        var criteria = new PartySearchCriteria("PERSON", null, null, null);
+        givenFinderReturns(criteria, PartySummaries.of(givenStoredPerson()));
 
-        var actualSummaries = service.findAll();
+        var actualSummaries = service.search(criteria);
 
-        thenSummaryCountIs(actualSummaries.size(), 2);
+        thenSummaryCountIs(actualSummaries.size(), 1);
     }
 
-    private void givenAllStored(final Party... parties) {
-        when(store.findAll()).thenReturn(List.of(parties));
+    private void givenFinderReturns(final PartySearchCriteria criteria, final PartySummary... summaries) {
+        when(finder.search(criteria)).thenReturn(List.of(summaries));
     }
 
     private void thenSummaryCountIs(final int actual, final int expected) {
