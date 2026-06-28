@@ -1,0 +1,13 @@
+target/
+**/target/
+.git/
+.github/
+.idea/
+*.iml
+*.log
+.gitignore
+.gitattributes
+.editorconfig
+LICENSE
+README.md
+docker-compose.yml
