@@ -1,5 +1,6 @@
 package dev.blumek.party.web;
 
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -18,5 +19,11 @@ class ApiExceptionHandler {
     ProblemDetail onConcurrentModification() {
         return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT,
                 "Resource was modified concurrently; reload and retry.");
+    }
+
+    @ExceptionHandler(DuplicateKeyException.class)
+    ProblemDetail onDuplicateKey() {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT,
+                "Resource already exists; reload and retry.");
     }
 }
