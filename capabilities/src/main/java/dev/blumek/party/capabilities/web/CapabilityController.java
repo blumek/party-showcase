@@ -37,6 +37,7 @@ import dev.blumek.party.capabilities.domain.VolumeScope;
 import dev.blumek.party.shared.OwnerId;
 import dev.blumek.party.shared.Result;
 
+import static dev.blumek.party.shared.Guards.require;
 import static java.util.Locale.ROOT;
 import static java.util.stream.Collectors.toUnmodifiableSet;
 
@@ -110,6 +111,11 @@ class CapabilityController {
         return new EffectivePeriod(from, to);
     }
 
+    private static int required(final Integer value, final String field) {
+        require(value != null, "Scope field '" + field + "' is required");
+        return value;
+    }
+
     private static Set<CapabilityScope> scopes(final List<ScopeRequest> requests) {
         return requests == null ? Set.of()
                 : requests.stream().map(CapabilityController::toScope).collect(toUnmodifiableSet());
@@ -118,8 +124,8 @@ class CapabilityController {
     private static CapabilityScope toScope(final ScopeRequest request) {
         return switch (request.dimension().toUpperCase(ROOT)) {
             case "AREA" -> new AreaScope(request.values());
-            case "GRADE" -> new GradeScope(request.label(), request.rank());
-            case "VOLUME" -> new VolumeScope(request.cap(), request.period());
+            case "GRADE" -> new GradeScope(request.label(), required(request.rank(), "rank"));
+            case "VOLUME" -> new VolumeScope(required(request.cap(), "cap"), request.period());
             case "SCHEDULE" -> new ScheduleScope(request.days(), request.opensAt(), request.closesAt());
             case "STANDARD" -> new StandardScope(request.values());
             case "CATALOG" -> new CatalogScope(request.values());

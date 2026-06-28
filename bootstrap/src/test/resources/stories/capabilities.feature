@@ -9,6 +9,11 @@ Feature: Party capabilities
     And the capability has kind "MedicalImaging"
     And the first capability scope has dimension "GRADE"
 
+  Scenario: Granting a graded capability without a rank is rejected
+    Given a registered person named "Rosalind" "Franklin" born "1920-07-25" known as "rosalind"
+    When I grant the "MedicalImaging" capability to party "rosalind" with a grade scope missing its rank
+    Then the response status is 400
+
   Scenario: List and revoke a granted capability
     Given a registered person named "Niels" "Bohr" born "1885-10-07" known as "niels"
     When I grant the "MedicalImaging" capability to party "niels" with grade "SENIOR" rank 3

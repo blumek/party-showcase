@@ -32,6 +32,15 @@ public class CapabilitySteps {
         context.remember(CAPABILITY, response.jsonPath().getString("id"));
     }
 
+    @When("I grant the {string} capability to party {string} with a grade scope missing its rank")
+    public void grantGradeWithoutRank(final String kind, final String alias) {
+        final var scope = new ScopeRequest("GRADE", null, "SENIOR", null, null, null, null, null, null);
+        final var request = new GrantCapabilityRequest(null, kind, List.of(scope), null, null);
+        context.record(given().contentType(ContentType.JSON)
+                .body(request)
+                .post("/parties/{partyId}/capabilities", context.recall(alias)));
+    }
+
     @When("I fetch the granted capability for party {string}")
     public void fetchGrantedCapability(final String alias) {
         context.record(given().get("/parties/{partyId}/capabilities/{capabilityId}",
