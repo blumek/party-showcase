@@ -15,5 +15,24 @@ services:
       timeout: 3s
       retries: 10
 
+  app:
+    build: .
+    image: party-showcase
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/party_showcase
+      DB_USER: party
+      DB_PASSWORD: party
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
+
 volumes:
   party-db:
