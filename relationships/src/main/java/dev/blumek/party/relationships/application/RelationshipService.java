@@ -25,7 +25,7 @@ public class RelationshipService {
         final var ledger = repository.findByOwner(command.from())
                 .orElseGet(() -> RelationshipLedger.openFor(command.from()));
         final var relationship = new Relationship(
-                command.id() == null ? RelationshipId.random() : command.id(),
+                RelationshipId.random(),
                 Endpoint.of(command.from(), command.fromRole()),
                 Endpoint.of(command.to(), command.toRole()),
                 command.type(), command.validity());

@@ -51,7 +51,7 @@ class RelationshipController {
     public ResponseEntity<Object> establish(@PathVariable("partyId") final OwnerId owner,
             @RequestBody @Valid final EstablishRelationshipRequest request) {
         final var command = new EstablishRelationship(owner, OwnerId.of(request.to()),
-                Role.of(request.fromRole()), Role.of(request.toRole()), relationshipId(request.relationshipId()),
+                Role.of(request.fromRole()), Role.of(request.toRole()),
                 RelationshipType.of(request.type()), validity(request.validFrom(), request.validTo()));
         return respond(owner, relationshipService.establish(command));
     }
@@ -98,10 +98,6 @@ class RelationshipController {
         final var body = ProblemDetail.forStatusAndDetail(status, detail);
         body.setProperty("code", code);
         return ResponseEntity.status(status).<Object>body(body);
-    }
-
-    private static RelationshipId relationshipId(final String raw) {
-        return raw == null ? null : RelationshipId.of(raw);
     }
 
     private static RelationshipPeriod validity(final LocalDate from, final LocalDate to) {

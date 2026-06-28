@@ -81,7 +81,7 @@ class RelationshipControllerTest {
     }
 
     private EstablishRelationshipRequest establishRequest() {
-        return new EstablishRelationshipRequest(null, other.asString(), "Employer", "Employee", "Employment",
+        return new EstablishRelationshipRequest(other.asString(), "Employer", "Employee", "Employment",
                 null, null);
     }
 

@@ -47,7 +47,7 @@ class RelationshipServiceTest {
 
     private EstablishRelationship establishCommand() {
         return new EstablishRelationship(employer, employee, Role.of("Employer"), Role.of("Employee"),
-                null, employment, RelationshipPeriod.always());
+                employment, RelationshipPeriod.always());
     }
 
     private void thenALedgerWasSaved() {
@@ -85,7 +85,7 @@ class RelationshipServiceTest {
         givenNoLedgerFor(employer);
 
         var actualResult = service.establish(new EstablishRelationship(employer, employee,
-                Role.of("Employee"), Role.of("Employer"), null, employment, RelationshipPeriod.always()));
+                Role.of("Employee"), Role.of("Employer"), employment, RelationshipPeriod.always()));
 
         thenFailedWith(actualResult, RelationshipError.RolesNotAllowed.class);
     }
@@ -101,7 +101,7 @@ class RelationshipServiceTest {
         givenNoLedgerFor(employer);
 
         service.establish(new EstablishRelationship(employer, employee,
-                Role.of("Employee"), Role.of("Employer"), null, employment, RelationshipPeriod.always()));
+                Role.of("Employee"), Role.of("Employer"), employment, RelationshipPeriod.always()));
 
         thenNothingWasSaved();
     }

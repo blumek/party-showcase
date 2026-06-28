@@ -22,7 +22,7 @@ public class RelationshipSteps {
     @When("I establish an {string} relationship from {string} as {string} to {string} as {string}")
     public void establish(final String type, final String fromAlias, final String fromRole,
             final String toAlias, final String toRole) {
-        final var request = new EstablishRelationshipRequest(null, context.recall(toAlias), fromRole, toRole, type,
+        final var request = new EstablishRelationshipRequest(context.recall(toAlias), fromRole, toRole, type,
                 null, null);
         final var response = given().contentType(ContentType.JSON)
                 .body(request)

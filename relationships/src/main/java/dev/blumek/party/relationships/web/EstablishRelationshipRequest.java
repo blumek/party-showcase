@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import jakarta.validation.constraints.NotBlank;
 
 public record EstablishRelationshipRequest(
-        String relationshipId,
         @NotBlank String to,
         @NotBlank String fromRole,
         @NotBlank String toRole,
