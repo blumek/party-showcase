@@ -9,7 +9,7 @@ import org.springframework.data.annotation.Version;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 
-@Table("party")
+@Table(name = "party", schema = "parties")
 record PartyRecord(
         @Id UUID id,
         @Version long version,

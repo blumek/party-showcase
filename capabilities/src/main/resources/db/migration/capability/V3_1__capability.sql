@@ -1,19 +1,21 @@
-create table capability_portfolio (
+create schema if not exists capabilities;
+
+create table capabilities.capability_portfolio (
     owner_id uuid primary key,
     version  bigint not null
 );
 
-create table capability (
+create table capabilities.capability (
     id         uuid primary key,
-    owner_id   uuid not null references capability_portfolio (owner_id) on delete cascade,
+    owner_id   uuid not null references capabilities.capability_portfolio (owner_id) on delete cascade,
     kind       text not null,
     valid_from date,
     valid_to   date
 );
 
-create table capability_scope (
+create table capabilities.capability_scope (
     id            uuid primary key,
-    capability_id uuid not null references capability (id) on delete cascade,
+    capability_id uuid not null references capabilities.capability (id) on delete cascade,
     dimension     text not null,
     grade_label   text,
     grade_rank    int,
@@ -23,12 +25,12 @@ create table capability_scope (
     closes_at     time
 );
 
-create table capability_scope_value (
-    scope_id uuid not null references capability_scope (id) on delete cascade,
+create table capabilities.capability_scope_value (
+    scope_id uuid not null references capabilities.capability_scope (id) on delete cascade,
     value    text not null
 );
 
-create table capability_scope_day (
-    scope_id uuid not null references capability_scope (id) on delete cascade,
+create table capabilities.capability_scope_day (
+    scope_id uuid not null references capabilities.capability_scope (id) on delete cascade,
     day      text not null
 );

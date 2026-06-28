@@ -8,7 +8,7 @@ import org.springframework.data.annotation.Version;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 
-@Table("capability_portfolio")
+@Table(name = "capability_portfolio", schema = "capabilities")
 record CapabilityPortfolioRecord(
         @Id UUID ownerId,
         @Version long version,

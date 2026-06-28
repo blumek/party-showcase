@@ -8,7 +8,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 
-@Table("address")
+@Table(name = "address", schema = "addresses")
 record AddressRecord(
         @Id UUID id,
         String kind,

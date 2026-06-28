@@ -27,7 +27,7 @@ class JdbcRelationshipFinder implements RelationshipFinder {
     public List<RelationshipSummary> find(final RelationshipQuery query) {
         final var sql = new StringBuilder(
                 "select id, from_party, from_role, to_party, to_role, type, valid_from, valid_to"
-                        + " from relationship where ");
+                        + " from relationships.relationship where ");
         final var params = new LinkedHashMap<String, Object>();
         params.put("owner", query.owner().value());
         sql.append(direction(query, params));

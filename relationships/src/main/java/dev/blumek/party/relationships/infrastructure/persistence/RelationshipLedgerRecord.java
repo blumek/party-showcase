@@ -8,7 +8,7 @@ import org.springframework.data.annotation.Version;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 
-@Table("relationship_ledger")
+@Table(name = "relationship_ledger", schema = "relationships")
 record RelationshipLedgerRecord(
         @Id UUID ownerId,
         @Version long version,

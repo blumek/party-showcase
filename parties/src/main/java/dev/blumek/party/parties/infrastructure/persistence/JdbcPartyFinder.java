@@ -41,7 +41,7 @@ class JdbcPartyFinder implements PartyFinder {
 
     private List<PartyHead> queryHeads(final PartySearchCriteria criteria) {
         final var sql = new StringBuilder(
-                "select id, type, given_name, family_name, legal_name from party where 1 = 1");
+                "select id, type, given_name, family_name, legal_name from parties.party where 1 = 1");
         final var params = new LinkedHashMap<String, Object>();
         if (criteria.type() != null) {
             sql.append(" and type = :type");
@@ -53,11 +53,11 @@ class JdbcPartyFinder implements PartyFinder {
             params.put("name", "%" + criteria.nameContains() + "%");
         }
         if (criteria.role() != null) {
-            sql.append(" and exists (select 1 from party_role r where r.party_id = party.id and r.name = :role)");
+            sql.append(" and exists (select 1 from parties.party_role r where r.party_id = party.id and r.name = :role)");
             params.put("role", criteria.role());
         }
         if (criteria.identifier() != null) {
-            sql.append(" and exists (select 1 from party_identifier i"
+            sql.append(" and exists (select 1 from parties.party_identifier i"
                     + " where i.party_id = party.id and i.value = :identifier)");
             params.put("identifier", criteria.identifier());
         }
@@ -70,7 +70,7 @@ class JdbcPartyFinder implements PartyFinder {
     }
 
     private Map<UUID, Set<String>> rolesByParty(final List<UUID> ids) {
-        return jdbc.sql("select party_id, name from party_role where party_id in (:ids)")
+        return jdbc.sql("select party_id, name from parties.party_role where party_id in (:ids)")
                 .param("ids", ids)
                 .query((rs, rowNum) -> Map.entry(rs.getObject("party_id", UUID.class), rs.getString("name")))
                 .list().stream()
@@ -79,7 +79,7 @@ class JdbcPartyFinder implements PartyFinder {
     }
 
     private Map<UUID, Set<PartySummary.IdentifierSummary>> identifiersByParty(final List<UUID> ids) {
-        return jdbc.sql("select party_id, kind, value from party_identifier where party_id in (:ids)")
+        return jdbc.sql("select party_id, kind, value from parties.party_identifier where party_id in (:ids)")
                 .param("ids", ids)
                 .query((rs, rowNum) -> Map.entry(rs.getObject("party_id", UUID.class),
                         new PartySummary.IdentifierSummary(rs.getString("kind"), rs.getString("value"))))

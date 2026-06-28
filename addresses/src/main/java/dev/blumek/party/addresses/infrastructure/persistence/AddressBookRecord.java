@@ -8,7 +8,7 @@ import org.springframework.data.annotation.Version;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 
-@Table("address_book")
+@Table(name = "address_book", schema = "addresses")
 record AddressBookRecord(
         @Id UUID ownerId,
         @Version long version,

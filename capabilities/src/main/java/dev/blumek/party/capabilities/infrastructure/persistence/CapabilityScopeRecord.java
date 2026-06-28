@@ -8,7 +8,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 
-@Table("capability_scope")
+@Table(name = "capability_scope", schema = "capabilities")
 record CapabilityScopeRecord(
         @Id UUID id,
         String dimension,

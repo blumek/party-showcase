@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
-@Table("relationship")
+@Table(name = "relationship", schema = "relationships")
 record RelationshipRecord(
         @Id UUID id,
         UUID fromParty,

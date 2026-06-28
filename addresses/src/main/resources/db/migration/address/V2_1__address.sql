@@ -1,11 +1,13 @@
-create table address_book (
+create schema if not exists addresses;
+
+create table addresses.address_book (
     owner_id uuid primary key,
     version  bigint not null
 );
 
-create table address (
+create table addresses.address (
     id          uuid primary key,
-    owner_id    uuid not null references address_book (owner_id) on delete cascade,
+    owner_id    uuid not null references addresses.address_book (owner_id) on delete cascade,
     kind        text not null,
     line1       text,
     line2       text,
@@ -19,7 +21,7 @@ create table address (
     valid_to    date
 );
 
-create table address_purpose (
-    address_id uuid not null references address (id) on delete cascade,
+create table addresses.address_purpose (
+    address_id uuid not null references addresses.address (id) on delete cascade,
     purpose    text not null
 );
