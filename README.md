@@ -21,11 +21,42 @@ a modular Spring Boot application backed by PostgreSQL.
 ./mvnw verify
 ```
 
+Integration tests spin up PostgreSQL via Testcontainers, so Docker must be running for `verify`.
+
 ## Run
 
-Docker Compose setup (app + PostgreSQL) is added later in the build.
+### Full stack (app + database)
 
-## Credits
+```
+docker compose up --build
+```
 
-The domain is modelled on the Party archetype pattern described by Arlow & Neustadt in
-*Enterprise Patterns and MDA*.
+Brings up PostgreSQL, then the app once the database is healthy; Flyway migrates the schema on boot.
+
+```
+curl localhost:8080/actuator/health
+curl -X POST localhost:8080/parties/people \
+  -H 'Content-Type: application/json' \
+  -d '{"given":"Ada","family":"Lovelace","dateOfBirth":"1815-12-10"}'
+```
+
+Stop with `docker compose down`, or `docker compose down -v` to also drop the database volume.
+
+### Local development (app on host, database in Docker)
+
+```
+docker compose up -d db
+./mvnw -pl bootstrap spring-boot:run
+```
+
+The `jdbc` profile is active by default and targets `localhost:5432` with the defaults below.
+
+### Configuration
+
+| Variable | Default | Compose value |
+|---|---|---|
+| `DB_URL` | `jdbc:postgresql://localhost:5432/party_showcase` | `jdbc:postgresql://db:5432/party_showcase` |
+| `DB_USER` | `party` | `party` |
+| `DB_PASSWORD` | `party` | `party` |
+
+App listens on `8080`. Actuator exposes `health` and `info` under `/actuator`.
