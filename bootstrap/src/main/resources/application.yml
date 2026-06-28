@@ -17,17 +17,6 @@ management:
 spring:
   config:
     activate:
-      on-profile: "!jdbc"
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration
-      - org.springframework.boot.flyway.autoconfigure.FlywayAutoConfiguration
-      - org.springframework.boot.data.jdbc.autoconfigure.DataJdbcRepositoriesAutoConfiguration
-
----
-spring:
-  config:
-    activate:
       on-profile: jdbc
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/party_showcase}

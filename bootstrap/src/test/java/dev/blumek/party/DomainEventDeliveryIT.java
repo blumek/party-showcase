@@ -15,9 +15,9 @@ import org.springframework.test.context.ActiveProfiles;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@ActiveProfiles("inmemory")
-@Import(DomainEventDeliveryTest.RecordingListener.class)
-class DomainEventDeliveryTest {
+@ActiveProfiles("jdbc")
+@Import({DomainEventDeliveryIT.RecordingListener.class, PostgresContainerSupport.class})
+class DomainEventDeliveryIT {
 
     @Autowired
     private DomainEventPublisher publisher;
