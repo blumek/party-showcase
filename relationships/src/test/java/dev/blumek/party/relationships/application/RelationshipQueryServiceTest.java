@@ -28,23 +28,24 @@ class RelationshipQueryServiceTest {
 
     @Test
     void summarisesARelationshipWithItsEndpointsAndType() {
-        var stored = givenStored(employment(RelationshipPeriod.from(LocalDate.of(2026, 1, 1))));
+        var stored = givenStored(employment());
 
         var actualSummary = service.findById(employer, stored.id()).orElseThrow();
 
         thenSummaryDescribes(actualSummary);
     }
 
-    private Relationship employment(final RelationshipPeriod validity) {
+    private Relationship employment() {
         return new Relationship(RelationshipId.random(),
                 Endpoint.of(employer, Role.of("Employer")),
-                Endpoint.of(employee, Role.of("Employee")), employment, validity);
+                Endpoint.of(employee, Role.of("Employee")), employment,
+                RelationshipPeriod.from(LocalDate.of(2026, 1, 1)));
     }
 
     private Relationship givenStored(final Relationship relationship) {
         var ledger = RelationshipLedger.openFor(employer);
         ledger.establish(relationship);
-        when(repository.findByOwner(employer)).thenReturn(Optional.of(ledger));
+        when(repository.findContaining(relationship.id())).thenReturn(Optional.of(ledger));
         return relationship;
     }
 
@@ -56,18 +57,25 @@ class RelationshipQueryServiceTest {
     }
 
     @Test
-    void returnsEmptyForAnUnknownRelationship() {
-        givenStored(employment(RelationshipPeriod.always()));
+    void resolvesARelationshipForTheCounterpartyAtTheToEndpoint() {
+        var stored = givenStored(employment());
 
-        var actualSummary = service.findById(employer, RelationshipId.random());
+        var actualSummary = service.findById(employee, stored.id());
+
+        assertThat(actualSummary).isPresent();
+    }
+
+    @Test
+    void returnsEmptyForAPartyThatDoesNotParticipate() {
+        var stored = givenStored(employment());
+
+        var actualSummary = service.findById(OwnerId.random(), stored.id());
 
         assertThat(actualSummary).isEmpty();
     }
 
     @Test
-    void returnsEmptyForAnUnknownOwner() {
-        when(repository.findByOwner(employer)).thenReturn(Optional.empty());
-
+    void returnsEmptyForAnUnknownRelationship() {
         var actualSummary = service.findById(employer, RelationshipId.random());
 
         assertThat(actualSummary).isEmpty();

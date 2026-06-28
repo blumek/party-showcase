@@ -17,8 +17,9 @@ public class RelationshipQueryService {
     }
 
     public Optional<RelationshipSummary> findById(final OwnerId owner, final RelationshipId id) {
-        return repository.findByOwner(owner)
+        return repository.findContaining(id)
                 .flatMap(ledger -> ledger.find(id))
+                .filter(relationship -> relationship.involves(owner))
                 .map(RelationshipSummaries::of);
     }
 }

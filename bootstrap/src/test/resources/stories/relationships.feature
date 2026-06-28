@@ -27,6 +27,17 @@ Feature: Relationships between parties
     Then the response status is 200
     And the relationship list has size 1
 
+  Scenario: A counterparty can read and end a relationship pointing at them
+    Given a registered company named "Globex" known as "employer"
+    And a registered company named "Initech" known as "employee"
+    When I establish an "Employment" relationship from "employer" as "Employer" to "employee" as "Employee"
+    Then the response status is 201
+    When I fetch the established relationship from "employee"
+    Then the response status is 200
+    And the relationship has type "Employment" and to-role "Employee"
+    When I end the established relationship from "employee"
+    Then the response status is 204
+
   Scenario: List and end an employment relationship
     Given a registered company named "Globex" known as "employer"
     And a registered company named "Initech" known as "employee"

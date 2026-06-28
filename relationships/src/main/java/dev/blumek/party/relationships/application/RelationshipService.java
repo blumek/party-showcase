@@ -33,7 +33,9 @@ public class RelationshipService {
     }
 
     public Result<RelationshipError, RelationshipId> terminate(final TerminateRelationship command) {
-        return repository.findByOwner(command.from())
+        return repository.findContaining(command.id())
+                .filter(ledger -> ledger.find(command.id())
+                        .map(relationship -> relationship.involves(command.from())).orElse(false))
                 .map(ledger -> ledger.terminate(command.id()).onSuccess(id -> persist(ledger)))
                 .orElseGet(() -> Result.failure(new RelationshipError.RelationshipNotFound(command.id())));
     }

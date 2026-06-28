@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 import dev.blumek.party.relationships.application.RelationshipRepository;
+import dev.blumek.party.relationships.domain.RelationshipId;
 import dev.blumek.party.relationships.domain.RelationshipLedger;
 import dev.blumek.party.shared.OwnerId;
 
@@ -32,6 +33,13 @@ class JdbcRelationshipRepository implements RelationshipRepository {
     @Override
     public Optional<RelationshipLedger> findByOwner(final OwnerId owner) {
         return records.findById(owner.value()).map(mapper::toDomain);
+    }
+
+    @Override
+    public Optional<RelationshipLedger> findContaining(final RelationshipId id) {
+        return records.findOwnerByRelationshipId(id.value())
+                .flatMap(records::findById)
+                .map(mapper::toDomain);
     }
 
     @Override

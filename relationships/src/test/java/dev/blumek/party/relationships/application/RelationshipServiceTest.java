@@ -111,9 +111,7 @@ class RelationshipServiceTest {
     }
 
     @Test
-    void terminatingForAnUnknownOwnerReturnsRelationshipNotFound() {
-        givenNoLedgerFor(employer);
-
+    void terminatingAnUnknownRelationshipReturnsRelationshipNotFound() {
         var actualResult = service.terminate(new TerminateRelationship(employer, RelationshipId.random()));
 
         thenFailedWith(actualResult, RelationshipError.RelationshipNotFound.class);
@@ -140,6 +138,26 @@ class RelationshipServiceTest {
         var ledger = RelationshipLedger.openFor(employer);
         ledger.establish(relationship);
         ledger.clearDomainEvents();
-        when(repository.findByOwner(employer)).thenReturn(Optional.of(ledger));
+        when(repository.findContaining(relationship.id())).thenReturn(Optional.of(ledger));
+    }
+
+    @Test
+    void terminatingFromTheCounterpartyEndpointPersistsTheLedger() {
+        var stored = givenStoredRelationship();
+        givenLedgerHolding(stored);
+
+        service.terminate(new TerminateRelationship(employee, stored.id()));
+
+        thenALedgerWasSaved();
+    }
+
+    @Test
+    void terminatingAsANonParticipantReturnsRelationshipNotFound() {
+        var stored = givenStoredRelationship();
+        givenLedgerHolding(stored);
+
+        var actualResult = service.terminate(new TerminateRelationship(OwnerId.random(), stored.id()));
+
+        thenFailedWith(actualResult, RelationshipError.RelationshipNotFound.class);
     }
 }
