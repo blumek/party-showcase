@@ -73,4 +73,12 @@ class EffectivePeriodTest {
     private void thenIllegalArgumentIsThrown(final Throwable thrown) {
         assertThat(thrown).isInstanceOf(IllegalArgumentException.class);
     }
+
+    @Test
+    void rejectsAZeroLengthPeriodWhereTheEndEqualsItsStart() {
+        var actualThrown = catchThrowable(
+                () -> EffectivePeriod.between(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 1)));
+
+        thenIllegalArgumentIsThrown(actualThrown);
+    }
 }

@@ -115,11 +115,3 @@ The `jdbc` profile is active by default and targets `localhost:5432` with the de
 | `DB_PASSWORD` | `party` | `party` |
 
 App listens on `8080`. Actuator exposes `health` and `info` under `/actuator`.
-
-## License
-
-Licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/). See [LICENSE](LICENSE).
-
-This project is an adaptation of the [archetypes](https://github.com/Archetypy-Oprogramowania/archetypes)
-project by Bartłomiej Słota, Jakub Pilimon and Sławomir Sobótka, and is shared under the same license.
-Non-commercial use only; adaptations must keep this license.

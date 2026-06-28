@@ -8,7 +8,7 @@ public record EffectivePeriod(LocalDate from, LocalDate to) {
 
     public EffectivePeriod {
         if (from != null && to != null) {
-            require(!to.isBefore(from), "Effective period end cannot precede its start");
+            require(to.isAfter(from), "Effective period end must be after its start");
         }
     }
 
