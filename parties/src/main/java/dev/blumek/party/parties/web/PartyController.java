@@ -2,7 +2,10 @@ package dev.blumek.party.parties.web;
 
 import java.util.List;
 
+import jakarta.validation.Valid;
+
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,26 +51,26 @@ class PartyController {
     }
 
     @PostMapping("/people")
-    public ResponseEntity<PartySummary> registerPerson(@RequestBody final RegisterPersonRequest request) {
+    public ResponseEntity<Object> registerPerson(@RequestBody @Valid final RegisterPersonRequest request) {
         final var profile = new PersonProfile(new PersonName(request.given(), request.family()), request.dateOfBirth());
         return respond(partyService.register(new RegisterPerson(profile)), HttpStatus.CREATED);
     }
 
     @PostMapping("/companies")
-    public ResponseEntity<PartySummary> registerCompany(@RequestBody final RegisterOrganizationRequest request) {
+    public ResponseEntity<Object> registerCompany(@RequestBody @Valid final RegisterOrganizationRequest request) {
         return respond(partyService.register(new RegisterCompany(new LegalName(request.name()))), HttpStatus.CREATED);
     }
 
     @PostMapping("/organization-units")
-    public ResponseEntity<PartySummary> registerOrganizationUnit(@RequestBody final RegisterOrganizationRequest request) {
+    public ResponseEntity<Object> registerOrganizationUnit(@RequestBody @Valid final RegisterOrganizationRequest request) {
         return respond(partyService.register(new RegisterOrganizationUnit(new LegalName(request.name()))), HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PartySummary> findById(@PathVariable final PartyId id) {
+    public ResponseEntity<Object> findById(@PathVariable final PartyId id) {
         return queryService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .<ResponseEntity<Object>>map(ResponseEntity::ok)
+                .orElseGet(() -> problem(HttpStatus.NOT_FOUND, "No party found with id " + id.asString(), "PartyNotFound"));
     }
 
     @GetMapping
@@ -80,30 +83,36 @@ class PartyController {
     }
 
     @PostMapping("/{id}/roles")
-    public ResponseEntity<PartySummary> assignRole(@PathVariable final PartyId id,
-            @RequestBody final AssignRoleRequest request) {
+    public ResponseEntity<Object> assignRole(@PathVariable final PartyId id,
+            @RequestBody @Valid final AssignRoleRequest request) {
         return respond(partyService.assignRole(new AssignRole(id, Role.named(request.name()))), HttpStatus.OK);
     }
 
     @PostMapping("/{id}/identifiers")
-    public ResponseEntity<PartySummary> registerIdentifier(@PathVariable final PartyId id,
-            @RequestBody final RegisterIdentifierRequest request) {
+    public ResponseEntity<Object> registerIdentifier(@PathVariable final PartyId id,
+            @RequestBody @Valid final RegisterIdentifierRequest request) {
         final var command = new RegisterIdentifier(id, toIdentifier(request));
         return respond(partyService.registerIdentifier(command), HttpStatus.OK);
     }
 
-    private ResponseEntity<PartySummary> respond(final Result<PartyError, PartyId> result, final HttpStatus successStatus) {
+    private ResponseEntity<Object> respond(final Result<PartyError, PartyId> result, final HttpStatus successStatus) {
         return result.fold(this::failure, id -> success(id, successStatus));
     }
 
-    private ResponseEntity<PartySummary> success(final PartyId id, final HttpStatus status) {
+    private ResponseEntity<Object> success(final PartyId id, final HttpStatus status) {
         return queryService.findById(id)
-                .map(summary -> ResponseEntity.status(status).body(summary))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .<ResponseEntity<Object>>map(summary -> ResponseEntity.status(status).body(summary))
+                .orElseGet(() -> problem(HttpStatus.NOT_FOUND, "No party found with id " + id.asString(), "PartyNotFound"));
     }
 
-    private ResponseEntity<PartySummary> failure(final PartyError error) {
-        return ResponseEntity.status(statusFor(error)).build();
+    private ResponseEntity<Object> failure(final PartyError error) {
+        return problem(statusFor(error), detailFor(error), error.getClass().getSimpleName());
+    }
+
+    private static ResponseEntity<Object> problem(final HttpStatus status, final String detail, final String code) {
+        final var body = ProblemDetail.forStatusAndDetail(status, detail);
+        body.setProperty("code", code);
+        return ResponseEntity.status(status).<Object>body(body);
     }
 
     private static HttpStatus statusFor(final PartyError error) {
@@ -112,6 +121,18 @@ class PartyController {
             case PartyError.IdentifierNotEligible _ -> HttpStatus.UNPROCESSABLE_CONTENT;
             case PartyError.RoleAlreadyHeld _, PartyError.RoleNotHeld _,
                     PartyError.IdentifierAlreadyHeld _, PartyError.IdentifierNotHeld _ -> HttpStatus.CONFLICT;
+        };
+    }
+
+    private static String detailFor(final PartyError error) {
+        return switch (error) {
+            case PartyError.PartyNotFound notFound -> "No party found with id " + notFound.id().asString();
+            case PartyError.IdentifierNotEligible notEligible ->
+                    "Identifier kind " + notEligible.kind() + " is not eligible for this party type";
+            case PartyError.RoleAlreadyHeld _ -> "Party already holds the requested role";
+            case PartyError.RoleNotHeld _ -> "Party does not hold the requested role";
+            case PartyError.IdentifierAlreadyHeld _ -> "Party already holds the requested identifier";
+            case PartyError.IdentifierNotHeld _ -> "Party does not hold the requested identifier";
         };
     }
 

@@ -4,7 +4,10 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
+import jakarta.validation.Valid;
+
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,8 +53,8 @@ class CapabilityController {
     }
 
     @PostMapping
-    public ResponseEntity<CapabilitySummary> grant(@PathVariable("partyId") final OwnerId owner,
-            @RequestBody final GrantCapabilityRequest request) {
+    public ResponseEntity<Object> grant(@PathVariable("partyId") final OwnerId owner,
+            @RequestBody @Valid final GrantCapabilityRequest request) {
         final var command = new GrantCapability(owner, capabilityId(request.capabilityId()),
                 CapabilityKind.of(request.kind()), scopes(request.scopes()),
                 validity(request.validFrom(), request.validTo()));
@@ -64,34 +67,39 @@ class CapabilityController {
     }
 
     @GetMapping("/{capabilityId}")
-    public ResponseEntity<CapabilitySummary> findById(@PathVariable("partyId") final OwnerId owner,
+    public ResponseEntity<Object> findById(@PathVariable("partyId") final OwnerId owner,
             @PathVariable final CapabilityId capabilityId) {
         return queryService.findById(owner, capabilityId)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .<ResponseEntity<Object>>map(ResponseEntity::ok)
+                .orElseGet(() -> problem(HttpStatus.NOT_FOUND, "No capability found with the given id", "CapabilityNotFound"));
     }
 
     @DeleteMapping("/{capabilityId}")
-    public ResponseEntity<Void> revoke(@PathVariable("partyId") final OwnerId owner,
+    public ResponseEntity<Object> revoke(@PathVariable("partyId") final OwnerId owner,
             @PathVariable final CapabilityId capabilityId) {
         return capabilityService.revoke(new RevokeCapability(owner, capabilityId))
-                .fold(error -> ResponseEntity.status(statusFor(error)).build(),
-                        id -> ResponseEntity.noContent().build());
+                .fold(this::failure, id -> ResponseEntity.noContent().build());
     }
 
-    private ResponseEntity<CapabilitySummary> respond(final OwnerId owner,
+    private ResponseEntity<Object> respond(final OwnerId owner,
             final Result<CapabilityError, CapabilityId> result) {
         return result.fold(this::failure, id -> success(owner, id));
     }
 
-    private ResponseEntity<CapabilitySummary> success(final OwnerId owner, final CapabilityId id) {
+    private ResponseEntity<Object> success(final OwnerId owner, final CapabilityId id) {
         return queryService.findById(owner, id)
-                .map(summary -> ResponseEntity.status(HttpStatus.CREATED).body(summary))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .<ResponseEntity<Object>>map(summary -> ResponseEntity.status(HttpStatus.CREATED).body(summary))
+                .orElseGet(() -> problem(HttpStatus.NOT_FOUND, "No capability found with the given id", "CapabilityNotFound"));
     }
 
-    private ResponseEntity<CapabilitySummary> failure(final CapabilityError error) {
-        return ResponseEntity.status(statusFor(error)).build();
+    private ResponseEntity<Object> failure(final CapabilityError error) {
+        return problem(statusFor(error), detailFor(error), error.getClass().getSimpleName());
+    }
+
+    private static ResponseEntity<Object> problem(final HttpStatus status, final String detail, final String code) {
+        final var body = ProblemDetail.forStatusAndDetail(status, detail);
+        body.setProperty("code", code);
+        return ResponseEntity.status(status).<Object>body(body);
     }
 
     private static CapabilityId capabilityId(final String raw) {
@@ -123,6 +131,12 @@ class CapabilityController {
     private static HttpStatus statusFor(final CapabilityError error) {
         return switch (error) {
             case CapabilityError.CapabilityNotFound _ -> HttpStatus.NOT_FOUND;
+        };
+    }
+
+    private static String detailFor(final CapabilityError error) {
+        return switch (error) {
+            case CapabilityError.CapabilityNotFound _ -> "No capability found with the given id";
         };
     }
 }

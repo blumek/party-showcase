@@ -1,4 +1,6 @@
 package dev.blumek.party.parties.web;
 
-public record AssignRoleRequest(String name) {
+import jakarta.validation.constraints.NotBlank;
+
+public record AssignRoleRequest(@NotBlank String name) {
 }

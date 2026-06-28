@@ -3,6 +3,9 @@ spring:
     name: party-showcase
   profiles:
     default: jdbc
+  mvc:
+    problemdetails:
+      enabled: true
 
 management:
   endpoints:

@@ -1,4 +1,6 @@
 package dev.blumek.party.parties.web;
 
-public record RegisterIdentifierRequest(String kind, String value) {
+import jakarta.validation.constraints.NotBlank;
+
+public record RegisterIdentifierRequest(@NotBlank String kind, @NotBlank String value) {
 }

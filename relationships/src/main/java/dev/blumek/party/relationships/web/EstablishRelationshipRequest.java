@@ -2,6 +2,14 @@ package dev.blumek.party.relationships.web;
 
 import java.time.LocalDate;
 
-public record EstablishRelationshipRequest(String relationshipId, String to, String fromRole, String toRole,
-        String type, LocalDate validFrom, LocalDate validTo) {
+import jakarta.validation.constraints.NotBlank;
+
+public record EstablishRelationshipRequest(
+        String relationshipId,
+        @NotBlank String to,
+        @NotBlank String fromRole,
+        @NotBlank String toRole,
+        @NotBlank String type,
+        LocalDate validFrom,
+        LocalDate validTo) {
 }

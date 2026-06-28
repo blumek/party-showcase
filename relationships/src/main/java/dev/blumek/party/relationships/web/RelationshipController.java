@@ -3,7 +3,10 @@ package dev.blumek.party.relationships.web;
 import java.time.LocalDate;
 import java.util.List;
 
+import jakarta.validation.Valid;
+
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,8 +48,8 @@ class RelationshipController {
     }
 
     @PostMapping
-    public ResponseEntity<RelationshipSummary> establish(@PathVariable("partyId") final OwnerId owner,
-            @RequestBody final EstablishRelationshipRequest request) {
+    public ResponseEntity<Object> establish(@PathVariable("partyId") final OwnerId owner,
+            @RequestBody @Valid final EstablishRelationshipRequest request) {
         final var command = new EstablishRelationship(owner, OwnerId.of(request.to()),
                 Role.of(request.fromRole()), Role.of(request.toRole()), relationshipId(request.relationshipId()),
                 RelationshipType.of(request.type()), validity(request.validFrom(), request.validTo()));
@@ -62,34 +65,39 @@ class RelationshipController {
     }
 
     @GetMapping("/{relationshipId}")
-    public ResponseEntity<RelationshipSummary> findById(@PathVariable("partyId") final OwnerId owner,
+    public ResponseEntity<Object> findById(@PathVariable("partyId") final OwnerId owner,
             @PathVariable final RelationshipId relationshipId) {
         return queryService.findById(owner, relationshipId)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .<ResponseEntity<Object>>map(ResponseEntity::ok)
+                .orElseGet(() -> problem(HttpStatus.NOT_FOUND, "No relationship found with the given id", "RelationshipNotFound"));
     }
 
     @DeleteMapping("/{relationshipId}")
-    public ResponseEntity<Void> terminate(@PathVariable("partyId") final OwnerId owner,
+    public ResponseEntity<Object> terminate(@PathVariable("partyId") final OwnerId owner,
             @PathVariable final RelationshipId relationshipId) {
         return relationshipService.terminate(new TerminateRelationship(owner, relationshipId))
-                .fold(error -> ResponseEntity.status(statusFor(error)).build(),
-                        id -> ResponseEntity.noContent().build());
+                .fold(this::failure, id -> ResponseEntity.noContent().build());
     }
 
-    private ResponseEntity<RelationshipSummary> respond(final OwnerId owner,
+    private ResponseEntity<Object> respond(final OwnerId owner,
             final Result<RelationshipError, RelationshipId> result) {
         return result.fold(this::failure, id -> success(owner, id));
     }
 
-    private ResponseEntity<RelationshipSummary> success(final OwnerId owner, final RelationshipId id) {
+    private ResponseEntity<Object> success(final OwnerId owner, final RelationshipId id) {
         return queryService.findById(owner, id)
-                .map(summary -> ResponseEntity.status(HttpStatus.CREATED).body(summary))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .<ResponseEntity<Object>>map(summary -> ResponseEntity.status(HttpStatus.CREATED).body(summary))
+                .orElseGet(() -> problem(HttpStatus.NOT_FOUND, "No relationship found with the given id", "RelationshipNotFound"));
     }
 
-    private ResponseEntity<RelationshipSummary> failure(final RelationshipError error) {
-        return ResponseEntity.status(statusFor(error)).build();
+    private ResponseEntity<Object> failure(final RelationshipError error) {
+        return problem(statusFor(error), detailFor(error), error.getClass().getSimpleName());
+    }
+
+    private static ResponseEntity<Object> problem(final HttpStatus status, final String detail, final String code) {
+        final var body = ProblemDetail.forStatusAndDetail(status, detail);
+        body.setProperty("code", code);
+        return ResponseEntity.status(status).<Object>body(body);
     }
 
     private static RelationshipId relationshipId(final String raw) {
@@ -104,6 +112,13 @@ class RelationshipController {
         return switch (error) {
             case RelationshipError.RelationshipNotFound _ -> HttpStatus.NOT_FOUND;
             case RelationshipError.RolesNotAllowed _ -> HttpStatus.CONFLICT;
+        };
+    }
+
+    private static String detailFor(final RelationshipError error) {
+        return switch (error) {
+            case RelationshipError.RelationshipNotFound _ -> "No relationship found with the given id";
+            case RelationshipError.RolesNotAllowed _ -> "The relationship type does not allow the given roles";
         };
     }
 }

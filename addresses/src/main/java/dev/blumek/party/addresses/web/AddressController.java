@@ -3,7 +3,10 @@ package dev.blumek.party.addresses.web;
 import java.time.LocalDate;
 import java.util.List;
 
+import jakarta.validation.Valid;
+
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,32 +43,32 @@ class AddressController {
     }
 
     @PostMapping("/email")
-    public ResponseEntity<AddressSummary> recordEmail(@PathVariable("partyId") final OwnerId owner,
-            @RequestBody final RecordEmailRequest request) {
+    public ResponseEntity<Object> recordEmail(@PathVariable("partyId") final OwnerId owner,
+            @RequestBody @Valid final RecordEmailRequest request) {
         final var command = new RecordEmailAddress(owner, addressId(request.addressId()), request.purposes(),
                 validity(request.validFrom(), request.validTo()), request.email());
         return respond(owner, addressService.recordEmail(command));
     }
 
     @PostMapping("/phone")
-    public ResponseEntity<AddressSummary> recordPhone(@PathVariable("partyId") final OwnerId owner,
-            @RequestBody final RecordPhoneRequest request) {
+    public ResponseEntity<Object> recordPhone(@PathVariable("partyId") final OwnerId owner,
+            @RequestBody @Valid final RecordPhoneRequest request) {
         final var command = new RecordPhoneNumber(owner, addressId(request.addressId()), request.purposes(),
                 validity(request.validFrom(), request.validTo()), request.phone());
         return respond(owner, addressService.recordPhone(command));
     }
 
     @PostMapping("/web")
-    public ResponseEntity<AddressSummary> recordWeb(@PathVariable("partyId") final OwnerId owner,
-            @RequestBody final RecordWebRequest request) {
+    public ResponseEntity<Object> recordWeb(@PathVariable("partyId") final OwnerId owner,
+            @RequestBody @Valid final RecordWebRequest request) {
         final var command = new RecordWebsiteUrl(owner, addressId(request.addressId()), request.purposes(),
                 validity(request.validFrom(), request.validTo()), request.url());
         return respond(owner, addressService.recordWebsite(command));
     }
 
     @PostMapping("/postal")
-    public ResponseEntity<AddressSummary> recordPostal(@PathVariable("partyId") final OwnerId owner,
-            @RequestBody final RecordPostalRequest request) {
+    public ResponseEntity<Object> recordPostal(@PathVariable("partyId") final OwnerId owner,
+            @RequestBody @Valid final RecordPostalRequest request) {
         final var command = new RecordPostalAddress(owner, addressId(request.addressId()), request.purposes(),
                 validity(request.validFrom(), request.validTo()), request.line1(), request.line2(), request.city(),
                 request.postalCode(), request.country());
@@ -78,33 +81,39 @@ class AddressController {
     }
 
     @GetMapping("/{addressId}")
-    public ResponseEntity<AddressSummary> findById(@PathVariable("partyId") final OwnerId owner,
+    public ResponseEntity<Object> findById(@PathVariable("partyId") final OwnerId owner,
             @PathVariable final AddressId addressId) {
         return queryService.findById(owner, addressId)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .<ResponseEntity<Object>>map(ResponseEntity::ok)
+                .orElseGet(() -> problem(HttpStatus.NOT_FOUND, "No address found with the given id", "AddressNotFound"));
     }
 
     @DeleteMapping("/{addressId}")
-    public ResponseEntity<Void> remove(@PathVariable("partyId") final OwnerId owner,
+    public ResponseEntity<Object> remove(@PathVariable("partyId") final OwnerId owner,
             @PathVariable final AddressId addressId) {
         final var command = new RemoveAddress(owner, addressId);
         return addressService.remove(command)
-                .fold(error -> ResponseEntity.status(statusFor(error)).build(), id -> ResponseEntity.noContent().build());
+                .fold(this::failure, id -> ResponseEntity.noContent().build());
     }
 
-    private ResponseEntity<AddressSummary> respond(final OwnerId owner, final Result<AddressError, AddressId> result) {
+    private ResponseEntity<Object> respond(final OwnerId owner, final Result<AddressError, AddressId> result) {
         return result.fold(this::failure, id -> success(owner, id));
     }
 
-    private ResponseEntity<AddressSummary> success(final OwnerId owner, final AddressId id) {
+    private ResponseEntity<Object> success(final OwnerId owner, final AddressId id) {
         return queryService.findById(owner, id)
-                .map(summary -> ResponseEntity.status(HttpStatus.CREATED).body(summary))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .<ResponseEntity<Object>>map(summary -> ResponseEntity.status(HttpStatus.CREATED).body(summary))
+                .orElseGet(() -> problem(HttpStatus.NOT_FOUND, "No address found with the given id", "AddressNotFound"));
     }
 
-    private ResponseEntity<AddressSummary> failure(final AddressError error) {
-        return ResponseEntity.status(statusFor(error)).build();
+    private ResponseEntity<Object> failure(final AddressError error) {
+        return problem(statusFor(error), detailFor(error), error.getClass().getSimpleName());
+    }
+
+    private static ResponseEntity<Object> problem(final HttpStatus status, final String detail, final String code) {
+        final var body = ProblemDetail.forStatusAndDetail(status, detail);
+        body.setProperty("code", code);
+        return ResponseEntity.status(status).<Object>body(body);
     }
 
     private static AddressId addressId(final String raw) {
@@ -120,6 +129,15 @@ class AddressController {
             case AddressError.AddressNotFound _ -> HttpStatus.NOT_FOUND;
             case AddressError.KindMismatch _, AddressError.DuplicateContact _,
                     AddressError.OverlappingValidity _ -> HttpStatus.CONFLICT;
+        };
+    }
+
+    private static String detailFor(final AddressError error) {
+        return switch (error) {
+            case AddressError.AddressNotFound _ -> "No address found with the given id";
+            case AddressError.KindMismatch _ -> "Address kind does not match the existing contact";
+            case AddressError.DuplicateContact _ -> "An identical contact already exists";
+            case AddressError.OverlappingValidity _ -> "The validity period overlaps an existing address for this purpose";
         };
     }
 }

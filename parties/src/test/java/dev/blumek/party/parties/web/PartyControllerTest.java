@@ -24,10 +24,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(PartyController.class)
+@WebMvcTest(value = PartyController.class, properties = "spring.mvc.problemdetails.enabled=true")
 class PartyControllerTest {
 
     @Autowired
@@ -106,6 +107,27 @@ class PartyControllerTest {
 
     private void givenAssignRoleReturns(final Result<PartyError, PartyId> result) {
         when(partyService.assignRole(any())).thenReturn(result);
+    }
+
+    @Test
+    void aDomainFailureIsReportedAsProblemDetailCarryingTheErrorCode() throws Exception {
+        givenAssignRoleReturns(Result.failure(new PartyError.PartyNotFound(partyId)));
+
+        mockMvc.perform(post("/parties/{id}/roles", partyId.asString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body(new AssignRoleRequest("Customer"))))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.code").value("PartyNotFound"));
+    }
+
+    @Test
+    void registeringAPersonWithABlankNameReturnsProblemDetailBadRequest() throws Exception {
+        mockMvc.perform(post("/parties/people")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body(new RegisterPersonRequest("", "Lovelace", LocalDate.of(1815, 12, 10)))))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON));
     }
 
     @Test
