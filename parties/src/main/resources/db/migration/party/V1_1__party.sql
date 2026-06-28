@@ -1,5 +1,6 @@
 create table party (
     id            uuid primary key,
+    version       bigint not null,
     type          text not null,
     given_name    text,
     family_name   text,

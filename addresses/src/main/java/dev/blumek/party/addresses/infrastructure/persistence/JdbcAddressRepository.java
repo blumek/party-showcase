@@ -23,7 +23,6 @@ class JdbcAddressRepository implements AddressRepository {
 
     @Override
     public AddressBook save(final AddressBook book) {
-        records.deleteById(book.owner().value());
         records.save(mapper.toRecord(book));
         return book;
     }

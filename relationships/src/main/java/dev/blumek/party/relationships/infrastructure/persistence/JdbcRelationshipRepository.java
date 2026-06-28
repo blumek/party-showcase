@@ -25,7 +25,6 @@ class JdbcRelationshipRepository implements RelationshipRepository {
 
     @Override
     public RelationshipLedger save(final RelationshipLedger ledger) {
-        records.deleteById(ledger.owner().value());
         records.save(mapper.toRecord(ledger));
         return ledger;
     }

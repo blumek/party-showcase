@@ -19,13 +19,6 @@ class VersionTest {
     }
 
     @Test
-    void nextAdvancesToTheFollowingNumber() {
-        var actualVersion = Version.initial().next().next();
-
-        thenNumberIs(actualVersion, 2);
-    }
-
-    @Test
     void aNegativeNumberIsRejected() {
         var actualThrown = catchThrowable(() -> new Version(-1));
 

@@ -70,7 +70,6 @@ public final class CapabilityPortfolio extends AggregateRoot<OwnerId> {
             return Result.failure(new CapabilityError.CapabilityNotFound(id));
         }
         raise(new CapabilityRevoked(owner, id, removed.kind()));
-        version = version.next();
         return Result.success(id);
     }
 
@@ -91,6 +90,5 @@ public final class CapabilityPortfolio extends AggregateRoot<OwnerId> {
 
     private void store(final Capability capability) {
         capabilities.put(capability.id(), capability);
-        version = version.next();
     }
 }

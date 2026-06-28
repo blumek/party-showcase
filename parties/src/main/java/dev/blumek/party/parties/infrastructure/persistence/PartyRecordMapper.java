@@ -21,6 +21,7 @@ import dev.blumek.party.parties.domain.PersonName;
 import dev.blumek.party.parties.domain.PersonProfile;
 import dev.blumek.party.parties.domain.Role;
 import dev.blumek.party.parties.domain.TaxIdentificationNumber;
+import dev.blumek.party.shared.Version;
 
 @Component
 @Profile("jdbc")
@@ -36,25 +37,26 @@ class PartyRecordMapper {
 
     Party toDomain(final PartyRecord entity) {
         final var id = new PartyId(entity.id());
+        final var version = new Version(entity.version());
         final var roles = roles(entity);
         final var identifiers = identifiers(entity);
         return switch (entity.type()) {
-            case "PERSON" -> Person.rehydrate(id, profile(entity), roles, identifiers);
-            case "COMPANY" -> Company.rehydrate(id, new LegalName(entity.legalName()), roles, identifiers);
-            case "ORGANIZATION_UNIT" -> OrganizationUnit.rehydrate(id, new LegalName(entity.legalName()), roles, identifiers);
+            case "PERSON" -> Person.rehydrate(id, profile(entity), version, roles, identifiers);
+            case "COMPANY" -> Company.rehydrate(id, new LegalName(entity.legalName()), version, roles, identifiers);
+            case "ORGANIZATION_UNIT" -> OrganizationUnit.rehydrate(id, new LegalName(entity.legalName()), version, roles, identifiers);
             default -> throw new IllegalStateException("Unknown party type: " + entity.type());
         };
     }
 
     private PartyRecord personRecord(final Person person) {
         final var profile = person.profile();
-        return new PartyRecord(person.id().value(), "PERSON",
+        return new PartyRecord(person.id().value(), person.version().number(), "PERSON",
                 profile.name().given(), profile.name().family(), profile.dateOfBirth(),
                 null, roleRecords(person), identifierRecords(person));
     }
 
     private PartyRecord organizationRecord(final Organization organization, final String type) {
-        return new PartyRecord(organization.id().value(), type,
+        return new PartyRecord(organization.id().value(), organization.version().number(), type,
                 null, null, null, organization.name().value(),
                 roleRecords(organization), identifierRecords(organization));
     }

@@ -7,6 +7,7 @@ import dev.blumek.party.parties.domain.LegalName;
 import dev.blumek.party.parties.domain.NationalIdentificationNumber;
 import dev.blumek.party.parties.domain.OrganizationUnit;
 import dev.blumek.party.parties.domain.Party;
+import dev.blumek.party.parties.domain.PartyId;
 import dev.blumek.party.parties.domain.PassportNumber;
 import dev.blumek.party.parties.domain.Person;
 import dev.blumek.party.parties.domain.PersonName;
@@ -19,6 +20,7 @@ import org.springframework.boot.data.jdbc.test.autoconfigure.DataJdbcTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Import;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.testcontainers.junit.jupiter.Container;
@@ -26,6 +28,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase.Replace.NONE;
 
 @DataJdbcTest
@@ -87,6 +90,28 @@ class JdbcPartyRepositoryIT {
         assertThat(actual).hasSize(2);
     }
 
+    @Test
+    void assignsTheInitialVersionOnInsert() {
+        var person = givenPerson();
+
+        var actual = savedAndReloaded(person);
+
+        assertThat(actual.version().number()).isEqualTo(1L);
+    }
+
+    @Test
+    void rejectsAStaleConcurrentSave() {
+        var person = givenPerson();
+        repository.save(person);
+        var first = reloaded(person.id());
+        var second = reloaded(person.id());
+        repository.save(first);
+
+        var actualThrown = catchThrowable(() -> repository.save(second));
+
+        thenOptimisticLockingFailed(actualThrown);
+    }
+
     private Person givenPerson() {
         var person = Person.register(new PersonProfile(new PersonName("Ada", "Lovelace"), LocalDate.of(1990, 1, 1)));
         person.assignRole(Role.named("DEVELOPER"));
@@ -108,5 +133,13 @@ class JdbcPartyRepositoryIT {
     private Party savedAndReloaded(final Party party) {
         repository.save(party);
         return repository.findById(party.id()).orElseThrow();
+    }
+
+    private Party reloaded(final PartyId id) {
+        return repository.findById(id).orElseThrow();
+    }
+
+    private void thenOptimisticLockingFailed(final Throwable thrown) {
+        assertThat(thrown).isInstanceOf(OptimisticLockingFailureException.class);
     }
 }

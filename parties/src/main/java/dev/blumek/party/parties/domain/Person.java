@@ -2,6 +2,8 @@ package dev.blumek.party.parties.domain;
 
 import java.util.Set;
 
+import dev.blumek.party.shared.Version;
+
 import static dev.blumek.party.shared.Guards.require;
 
 public final class Person extends Party {
@@ -20,10 +22,10 @@ public final class Person extends Party {
         return person;
     }
 
-    public static Person rehydrate(final PartyId id, final PersonProfile profile,
+    public static Person rehydrate(final PartyId id, final PersonProfile profile, final Version version,
                                    final Set<Role> roles, final Set<OfficialIdentifier> identifiers) {
         final var person = new Person(id, profile);
-        person.restore(roles, identifiers);
+        person.restore(version, roles, identifiers);
         return person;
     }
 

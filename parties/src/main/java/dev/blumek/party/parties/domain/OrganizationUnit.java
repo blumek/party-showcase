@@ -2,6 +2,8 @@ package dev.blumek.party.parties.domain;
 
 import java.util.Set;
 
+import dev.blumek.party.shared.Version;
+
 public final class OrganizationUnit extends Organization {
 
     private OrganizationUnit(final PartyId id, final LegalName name) {
@@ -14,10 +16,10 @@ public final class OrganizationUnit extends Organization {
         return unit;
     }
 
-    public static OrganizationUnit rehydrate(final PartyId id, final LegalName name,
+    public static OrganizationUnit rehydrate(final PartyId id, final LegalName name, final Version version,
                                              final Set<Role> roles, final Set<OfficialIdentifier> identifiers) {
         final var unit = new OrganizationUnit(id, name);
-        unit.restore(roles, identifiers);
+        unit.restore(version, roles, identifiers);
         return unit;
     }
 }

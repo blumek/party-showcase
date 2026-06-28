@@ -21,6 +21,7 @@ import org.springframework.boot.data.jdbc.test.autoconfigure.DataJdbcTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Import;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.testcontainers.junit.jupiter.Container;
@@ -28,6 +29,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase.Replace.NONE;
 
 @DataJdbcTest
@@ -83,12 +85,24 @@ class JdbcCapabilityRepositoryIT {
     }
 
     @Test
-    void preservesTheAggregateVersion() {
+    void assignsTheInitialVersionOnInsert() {
         var portfolio = givenPortfolioWithRichCapability();
 
         var actual = savedAndReloaded(portfolio);
 
-        assertThat(actual.version()).isEqualTo(portfolio.version());
+        assertThat(actual.version().number()).isEqualTo(1L);
+    }
+
+    @Test
+    void rejectsAStaleConcurrentSave() {
+        repository.save(givenPortfolioWithRichCapability());
+        var first = reloaded();
+        var second = reloaded();
+        repository.save(first);
+
+        var actualThrown = catchThrowable(() -> repository.save(second));
+
+        thenOptimisticLockingFailed(actualThrown);
     }
 
     private CapabilityPortfolio givenPortfolioWithRichCapability() {
@@ -106,5 +120,13 @@ class JdbcCapabilityRepositoryIT {
     private CapabilityPortfolio savedAndReloaded(final CapabilityPortfolio portfolio) {
         repository.save(portfolio);
         return repository.findByOwner(portfolio.owner()).orElseThrow();
+    }
+
+    private CapabilityPortfolio reloaded() {
+        return repository.findByOwner(owner).orElseThrow();
+    }
+
+    private void thenOptimisticLockingFailed(final Throwable thrown) {
+        assertThat(thrown).isInstanceOf(OptimisticLockingFailureException.class);
     }
 }

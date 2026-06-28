@@ -11,8 +11,4 @@ public record Version(long number) {
     public static Version initial() {
         return new Version(0);
     }
-
-    public Version next() {
-        return new Version(number + 1);
-    }
 }

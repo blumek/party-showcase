@@ -25,7 +25,6 @@ class JdbcPartyRepository implements PartyRepository {
 
     @Override
     public Party save(final Party party) {
-        records.deleteById(party.id().value());
         records.save(mapper.toRecord(party));
         return party;
     }

@@ -47,19 +47,6 @@ class CapabilityPortfolioTest {
     }
 
     @Test
-    void grantingANewCapabilityAdvancesTheVersion() {
-        var portfolio = CapabilityPortfolio.openFor(owner);
-
-        portfolio.grant(givenCapability());
-
-        thenVersionNumberIs(portfolio, 1);
-    }
-
-    private void thenVersionNumberIs(final CapabilityPortfolio portfolio, final long expected) {
-        assertThat(portfolio.version().number()).isEqualTo(expected);
-    }
-
-    @Test
     void revisingAnExistingCapabilityRaisesCapabilityRevised() {
         var portfolio = givenPortfolioHolding(givenCapability());
         var stored = portfolio.capabilities().getFirst();

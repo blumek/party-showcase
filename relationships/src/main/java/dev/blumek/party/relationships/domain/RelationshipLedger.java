@@ -77,7 +77,6 @@ public final class RelationshipLedger extends AggregateRoot<OwnerId> {
             return Result.failure(new RelationshipError.RelationshipNotFound(id));
         }
         raise(new RelationshipTerminated(owner, id, removed.type()));
-        version = version.next();
         return Result.success(id);
     }
 
@@ -106,6 +105,5 @@ public final class RelationshipLedger extends AggregateRoot<OwnerId> {
 
     private void store(final Relationship relationship) {
         relationships.put(relationship.id(), relationship);
-        version = version.next();
     }
 }

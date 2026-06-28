@@ -47,19 +47,6 @@ class AddressBookTest {
     }
 
     @Test
-    void recordingANewAddressAdvancesTheVersion() {
-        var book = AddressBook.openFor(owner);
-
-        book.record(givenEmail("ada@example.com"));
-
-        thenVersionNumberIs(book, 1);
-    }
-
-    private void thenVersionNumberIs(final AddressBook book, final long expected) {
-        assertThat(book.version().number()).isEqualTo(expected);
-    }
-
-    @Test
     void revisingAnExistingAddressRaisesAddressRevised() {
         var book = givenBookHolding(givenEmail("ada@example.com"));
         var stored = book.addresses().getFirst();

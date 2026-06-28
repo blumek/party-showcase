@@ -25,7 +25,6 @@ class JdbcCapabilityRepository implements CapabilityRepository {
 
     @Override
     public CapabilityPortfolio save(final CapabilityPortfolio portfolio) {
-        records.deleteById(portfolio.owner().value());
         records.save(mapper.toRecord(portfolio));
         return portfolio;
     }

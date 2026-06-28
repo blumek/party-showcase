@@ -50,19 +50,6 @@ class RelationshipLedgerTest {
     }
 
     @Test
-    void establishingANewRelationshipAdvancesTheVersion() {
-        var ledger = RelationshipLedger.openFor(owner);
-
-        ledger.establish(givenRelationship());
-
-        thenVersionNumberIs(ledger, 1);
-    }
-
-    private void thenVersionNumberIs(final RelationshipLedger ledger, final long expected) {
-        assertThat(ledger.version().number()).isEqualTo(expected);
-    }
-
-    @Test
     void revisingAnExistingRelationshipRaisesRelationshipRevised() {
         var ledger = givenLedgerHolding(givenRelationship());
         var stored = ledger.relationships().getFirst();

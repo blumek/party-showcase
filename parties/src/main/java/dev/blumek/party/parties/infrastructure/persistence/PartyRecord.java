@@ -5,13 +5,14 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.domain.Persistable;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 
 @Table("party")
 record PartyRecord(
         @Id UUID id,
+        @Version long version,
         String type,
         String givenName,
         String familyName,
@@ -19,15 +20,5 @@ record PartyRecord(
         String legalName,
         @MappedCollection(idColumn = "party_id") Set<PartyRoleRecord> roles,
         @MappedCollection(idColumn = "party_id") Set<PartyIdentifierRecord> identifiers
-) implements Persistable<UUID> {
-
-    @Override
-    public UUID getId() {
-        return id;
-    }
-
-    @Override
-    public boolean isNew() {
-        return true;
-    }
+) {
 }

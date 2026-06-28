@@ -5,6 +5,7 @@ import java.util.Set;
 
 import dev.blumek.party.shared.AggregateRoot;
 import dev.blumek.party.shared.Result;
+import dev.blumek.party.shared.Version;
 
 import static dev.blumek.party.shared.Guards.require;
 
@@ -13,15 +14,21 @@ public abstract sealed class Party extends AggregateRoot<PartyId> permits Person
     private final PartyId id;
     private final Set<Role> roles = new HashSet<>();
     private final Set<OfficialIdentifier> identifiers = new HashSet<>();
+    private Version version;
 
     protected Party(final PartyId id) {
         require(id != null, "Party requires an id");
         this.id = id;
+        this.version = Version.initial();
     }
 
     @Override
     public PartyId id() {
         return id;
+    }
+
+    public Version version() {
+        return version;
     }
 
     public Set<Role> roles() {
@@ -34,7 +41,8 @@ public abstract sealed class Party extends AggregateRoot<PartyId> permits Person
 
     protected abstract boolean accepts(IdentifierKind kind);
 
-    protected void restore(final Set<Role> roles, final Set<OfficialIdentifier> identifiers) {
+    protected void restore(final Version version, final Set<Role> roles, final Set<OfficialIdentifier> identifiers) {
+        this.version = version;
         this.roles.addAll(roles);
         this.identifiers.addAll(identifiers);
     }

@@ -77,7 +77,6 @@ public final class AddressBook extends AggregateRoot<OwnerId> {
             return Result.failure(new AddressError.AddressNotFound(id));
         }
         raise(new AddressWithdrawn(owner, id, removed.kind()));
-        version = version.next();
         return Result.success(id);
     }
 
@@ -115,6 +114,5 @@ public final class AddressBook extends AggregateRoot<OwnerId> {
 
     private void store(final Address address) {
         addresses.put(address.id(), address);
-        version = version.next();
     }
 }
