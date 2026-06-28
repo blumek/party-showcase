@@ -48,9 +48,9 @@ class JdbcPartyFinder implements PartyFinder {
             params.put("type", criteria.type());
         }
         if (criteria.nameContains() != null) {
-            sql.append(" and (coalesce(given_name, '') || ' ' || coalesce(family_name, '') ilike :name"
-                    + " or coalesce(legal_name, '') ilike :name)");
-            params.put("name", "%" + criteria.nameContains() + "%");
+            sql.append(" and (coalesce(given_name, '') || ' ' || coalesce(family_name, '') ilike :name escape '\\'"
+                    + " or coalesce(legal_name, '') ilike :name escape '\\')");
+            params.put("name", "%" + escapeLike(criteria.nameContains()) + "%");
         }
         if (criteria.role() != null) {
             sql.append(" and exists (select 1 from parties.party_role r where r.party_id = party.id and r.name = :role)");
@@ -67,6 +67,10 @@ class JdbcPartyFinder implements PartyFinder {
         }
         return spec.query((rs, rowNum) -> new PartyHead(rs.getObject("id", UUID.class), rs.getString("type"),
                 rs.getString("given_name"), rs.getString("family_name"), rs.getString("legal_name"))).list();
+    }
+
+    private static String escapeLike(final String value) {
+        return value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
     }
 
     private Map<UUID, Set<String>> rolesByParty(final List<UUID> ids) {

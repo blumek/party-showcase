@@ -72,6 +72,13 @@ class JdbcPartyFinderIT {
     }
 
     @Test
+    void treatsLikeWildcardsInTheNameFragmentLiterally() {
+        var actual = finder.search(new PartySearchCriteria(null, null, null, "%"));
+
+        assertThat(actual).isEmpty();
+    }
+
+    @Test
     void findsByIdentifierValueWithRolesAndIdentifiersAttached() {
         var actual = finder.search(new PartySearchCriteria(null, null, "44051401458", null));
 
