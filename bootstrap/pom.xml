@@ -118,7 +118,17 @@
         </dependency>
         <dependency>
             <groupId>dev.blumek</groupId>
-            <artifactId>relationships</artifactId>
+            <artifactId>relationships-application</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.blumek</groupId>
+            <artifactId>relationships-adapter-jdbc</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.blumek</groupId>
+            <artifactId>relationships-adapter-web</artifactId>
             <version>${project.version}</version>
         </dependency>
 
