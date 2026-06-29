@@ -73,7 +73,17 @@
         </dependency>
         <dependency>
             <groupId>dev.blumek</groupId>
-            <artifactId>parties</artifactId>
+            <artifactId>parties-application</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.blumek</groupId>
+            <artifactId>parties-adapter-jdbc</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.blumek</groupId>
+            <artifactId>parties-adapter-web</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
