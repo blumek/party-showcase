@@ -103,7 +103,17 @@
         </dependency>
         <dependency>
             <groupId>dev.blumek</groupId>
-            <artifactId>capabilities</artifactId>
+            <artifactId>capabilities-application</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.blumek</groupId>
+            <artifactId>capabilities-adapter-jdbc</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.blumek</groupId>
+            <artifactId>capabilities-adapter-web</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
