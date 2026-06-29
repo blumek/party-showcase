@@ -3,6 +3,9 @@ spring:
     name: party-showcase
   profiles:
     default: jdbc
+  threads:
+    virtual:
+      enabled: true
   mvc:
     problemdetails:
       enabled: true
